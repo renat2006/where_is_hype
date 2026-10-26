@@ -1,0 +1,6 @@
+.farm/worktrees/
+.farm/state/
+.farm/logs/
+.farm/prompts/
+.farm/reports/
+.farm/farm.env

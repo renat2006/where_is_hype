@@ -1,0 +1,96 @@
+{
+  "max_running": 6,
+  "poll_seconds": 30,
+  "stall_minutes": 30,
+  "max_attempts": 3,
+  "cooldown_minutes": 45,
+  "port_range": [
+    4700,
+    4759
+  ],
+  "review_roles": [
+    "build"
+  ],
+  "review_role": "audit",
+  "limit_patterns": [
+    "you’ve hit your usage limit",
+    "you've hit your usage limit",
+    "usage limit reached",
+    "claude ai usage limit",
+    "out_of_quota",
+    "insufficient credits",
+    "out of credits",
+    "resource_exhausted",
+    "rate limit exceeded",
+    "\"type\":\"turn.failed\""
+  ],
+  "engines": {
+    "agy-argon": {
+      "max": 4,
+      "enabled": true,
+      "paid": false,
+      "roles": [
+        "build",
+        "research",
+        "storm",
+        "audit"
+      ]
+    },
+    "agy-flash": {
+      "max": 3,
+      "enabled": true,
+      "paid": false,
+      "roles": [
+        "research",
+        "storm",
+        "audit"
+      ]
+    },
+    "codex-hi": {
+      "max": 2,
+      "enabled": true,
+      "paid": false,
+      "roles": [
+        "build",
+        "audit",
+        "research"
+      ]
+    },
+    "claude": {
+      "max": 2,
+      "enabled": false,
+      "paid": false,
+      "roles": [
+        "build",
+        "audit",
+        "research",
+        "storm"
+      ]
+    }
+  },
+  "role_order": {
+    "build": [
+      "agy-argon",
+      "codex-hi",
+      "claude"
+    ],
+    "research": [
+      "agy-flash",
+      "agy-argon"
+    ],
+    "storm": [
+      "agy-argon"
+    ],
+    "audit": [
+      "claude",
+      "codex-hi",
+      "agy-argon"
+    ]
+  },
+  "fatal_patterns": [
+    "user location is not supported",
+    "not logged in",
+    "please run /login",
+    "unauthenticated"
+  ]
+}
