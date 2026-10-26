@@ -1,7 +1,7 @@
 name: Баг
 description: Что-то работает не так
-title: "Баг: "
-labels: ["bug"]
+title: 'Баг: '
+labels: ['bug']
 body:
   - type: textarea
     id: steps

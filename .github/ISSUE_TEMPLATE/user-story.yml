@@ -1,7 +1,7 @@
 name: Пользовательская история
 description: Новая возможность для пользователя
-title: "US: "
-labels: ["story"]
+title: 'US: '
+labels: ['story']
 body:
   - type: input
     id: id

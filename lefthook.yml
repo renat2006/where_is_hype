@@ -1,0 +1,23 @@
+pre-commit:
+  parallel: true
+  commands:
+    prettier:
+      glob: '*.{js,ts,tsx,json,md,yml,yaml,css,html}'
+      exclude:
+        - apps/api/**
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+    eslint:
+      glob: '*.{js,ts,tsx}'
+      run: pnpm exec eslint --fix --max-warnings=0 {staged_files}
+      stage_fixed: true
+    ruff:
+      root: apps/api/
+      glob: '*.py'
+      run: uv run ruff check --fix {staged_files} && uv run ruff format {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}
