@@ -68,7 +68,8 @@ sudo systemctl start hype-balancer
 
 ## Настройка
 
-- `farm.env` (из `farm.env.example`): пути, remote, прокси, `SETUP_CMD` для новой рабочей копии и команды гейтов
-  `LINT_CMD`, `TYPECHECK_CMD`, `TEST_CMD`, `BUILD_CMD`, `E2E_CMD` (пустые — пропуск). Заполнить после выбора стека.
-- `PROTOCOL.md` — общий протокол агента; раздел про дизайн-систему и стек дописать после выбора стека.
+- `farm.env` (из `farm.env.example`): пути, remote, прокси, `EXTRA_PATH` (Node 24 + pnpm, uv), `SETUP_CMD`
+  для новой рабочей копии и гейты `LINT_CMD`, `TYPECHECK_CMD`, `TEST_CMD`, `BUILD_CMD`, `E2E_CMD` — те же шаги, что в CI.
+- `PROTOCOL.md` — общий протокол агента; раздел про дизайн-систему дописать после Claude Design.
+- Ветка `agents/<ID>` — не PR. PR в `main` открывает тимлид после ревью, по правилам `CONTRIBUTING.md`.
 - Не коммитятся: `worktrees/`, `state/`, `logs/`, `prompts/`, `reports/`, `farm.env`.

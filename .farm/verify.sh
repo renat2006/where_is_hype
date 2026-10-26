@@ -5,9 +5,10 @@ FARM=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(dirname "$FARM")
 WORKTREES=.farm/worktrees
 BASE_BRANCH=main
-LINT_CMD= TYPECHECK_CMD= TEST_CMD= BUILD_CMD= E2E_CMD=
+LINT_CMD= TYPECHECK_CMD= TEST_CMD= BUILD_CMD= E2E_CMD= EXTRA_PATH=
 # shellcheck disable=SC1091
 [ -f "$FARM/farm.env" ] && set -a && . "$FARM/farm.env" && set +a
+export PATH="${EXTRA_PATH:+$EXTRA_PATH:}$HOME/.local/bin:$PATH"
 case "$WORKTREES" in /*) ;; *) WORKTREES=$ROOT/$WORKTREES ;; esac
 
 task=${1:?task id}

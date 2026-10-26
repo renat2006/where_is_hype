@@ -1,0 +1,43 @@
+name: Пользовательская история
+description: Новая возможность для пользователя
+title: 'US: '
+labels: ['story']
+body:
+  - type: input
+    id: id
+    attributes:
+      label: ID истории
+      description: Например, US3. Нумерация общая со сценариями КТ-3.
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: История
+      description: Как <кто>, я хочу <что>, чтобы <зачем>.
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Критерии приёмки
+      description: 2–3 проверяемых условия.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Рамки
+      options:
+        - В пилоте
+        - За рамками пилота
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: На чём основано
+      description: Интервью, опрос, гипотеза. Отметьте, подтверждено или нет.

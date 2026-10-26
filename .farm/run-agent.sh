@@ -8,11 +8,12 @@ REMOTE=origin
 BASE_BRANCH=main
 PROXY=
 SETUP_CMD=
+EXTRA_PATH=
 # shellcheck disable=SC1091
 [ -f "$FARM/farm.env" ] && set -a && . "$FARM/farm.env" && set +a
 case "$WORKTREES" in /*) ;; *) WORKTREES=$ROOT/$WORKTREES ;; esac
 
-export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+export PATH="${EXTRA_PATH:+$EXTRA_PATH:}$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
 agent=${1:?agent: agy-argon|agy-flash|codex-hi|claude}
 task=${2:?task id, e.g. T01}
@@ -85,7 +86,7 @@ fi
 
 cat > "$runner" <<EOF
 #!/usr/bin/env bash
-export PATH="\$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:\$PATH"
+export PATH="$PATH"
 $proxy_block
 cd $wt || exit 1
 echo \$\$ > $pidfile

@@ -30,6 +30,8 @@ def load_env() -> dict:
 
 
 ENV = load_env()
+if ENV.get("EXTRA_PATH"):
+    os.environ["PATH"] = f'{ENV["EXTRA_PATH"]}:{os.environ.get("PATH", "")}'
 ROOT = Path(ENV.get("ROOT") or FARM.parent)
 WORKTREES = Path(ENV.get("WORKTREES") or FARM / "worktrees")
 if not WORKTREES.is_absolute():
@@ -187,7 +189,7 @@ def push_branch(task_id: str) -> str:
     subprocess.run([*git, "add", "-A"], capture_output=True)
     staged = subprocess.run([*git, "diff", "--cached", "--quiet"]).returncode != 0
     if staged:
-        subprocess.run([*git, "commit", "-qm", f"Complete task {task_id}"], capture_output=True)
+        subprocess.run([*git, "commit", "-qm", f"chore(repo): сдать задачу фермы {task_id}"], capture_output=True)
     res = subprocess.run(
         [*git, "push", "-q", "-u", REMOTE, f"agents/{task_id}", "--force-with-lease"],
         capture_output=True, text=True,
