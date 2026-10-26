@@ -18,7 +18,8 @@ report=$FARM/reports/$task.md
 out=$FARM/state/$task.verify
 mkdir -p "$FARM/state" "$FARM/logs"
 cd "$wt" || { echo "FAIL worktree $wt missing"; exit 1; }
-base=$(git rev-parse -q --verify "origin/$BASE_BRANCH" >/dev/null && echo "origin/$BASE_BRANCH" || echo "$BASE_BRANCH")
+tbase=${3:-$BASE_BRANCH}
+base=$(git rev-parse -q --verify "origin/$tbase" >/dev/null && echo "origin/$tbase" || echo "$tbase")
 fail=0
 
 {

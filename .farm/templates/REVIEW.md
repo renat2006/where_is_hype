@@ -1,6 +1,9 @@
 ---
 role: audit
 review: false
+base: agents/{{TARGET}}
+exclude: {{AUTHOR_ENGINE}}
+prio: {{PRIO}}
 ---
 # Ревью ветки agents/{{TARGET}}
 

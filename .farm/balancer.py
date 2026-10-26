@@ -197,9 +197,9 @@ def push_branch(task_id: str) -> str:
     return "pushed" if res.returncode == 0 else f"push failed: {res.stderr.strip()[:160]}"
 
 
-def verify(task_id: str, port: int) -> tuple[bool, str]:
+def verify(task_id: str, port: int, base: str = "") -> tuple[bool, str]:
     res = subprocess.run(
-        [str(FARM / "verify.sh"), task_id, str(port or 0)],
+        [str(FARM / "verify.sh"), task_id, str(port or 0), base or BASE],
         capture_output=True, text=True, timeout=3600,
     )
     return res.returncode == 0, (res.stdout + res.stderr)[-4000:]
@@ -290,7 +290,12 @@ def enqueue_review(task_id: str, task: dict, data: dict, cfg: dict) -> None:
     review_id = f"REVIEW-{task_id}"
     if review_id in data["tasks"] or not REVIEW_TEMPLATE.exists():
         return
-    spec = REVIEW_TEMPLATE.read_text().replace("{{TARGET}}", task_id).replace("{{AUTHOR_ENGINE}}", task["engine"])
+    spec = (
+        REVIEW_TEMPLATE.read_text()
+        .replace("{{TARGET}}", task_id)
+        .replace("{{AUTHOR_ENGINE}}", task["engine"])
+        .replace("{{PRIO}}", str(max(1, task.get("prio", 5) - 1)))
+    )
     (TASKS / f"{review_id}.md").write_text(spec)
     data["tasks"][review_id] = new_task(
         cfg.get("review_role", "audit"), max(1, task.get("prio", 5) - 1),
@@ -300,7 +305,7 @@ def enqueue_review(task_id: str, task: dict, data: dict, cfg: dict) -> None:
 
 
 def finish(task_id: str, task: dict, data: dict, cfg: dict) -> None:
-    ok, out = verify(task_id, task.get("port", 0))
+    ok, out = verify(task_id, task.get("port", 0), task.get("base", ""))
     (STATE / f"{task_id}.verify.out").write_text(out)
     if not ok:
         (STATE / f"{task_id}.feedback").write_text(out)
@@ -321,7 +326,7 @@ def tick() -> None:
     cfg = config()
     with db() as data:
         discover(data)
-        for task_id, task in data["tasks"].items():
+        for task_id, task in list(data["tasks"].items()):
             if task.get("status") != "running":
                 continue
             pid = task.get("pid") or read_pid(task_id)
@@ -335,6 +340,13 @@ def tick() -> None:
                     task.update(status="pending", note="stalled", pid=None)
                 continue
             tail = log_tail(task_id)
+            auth = next((p for p in cfg.get("auth_patterns", []) if p in tail), None)
+            if auth:
+                hours = cfg.get("auth_cooldown_hours", 12)
+                data["cooldown"][task["engine"]] = now() + hours * 3600
+                task.update(status="pending", pid=None, note=f"{task['engine']} not logged in")
+                log(f"{task['engine']} not logged in ({auth}) — paused {hours} h, {task_id} back to queue")
+                continue
             fatal = next((p for p in cfg.get("fatal_patterns", []) if p in tail), None)
             if fatal:
                 task.update(status="failed", pid=None, note=f"fatal: {fatal}")

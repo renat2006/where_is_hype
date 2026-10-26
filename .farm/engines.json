@@ -84,13 +84,21 @@
     "audit": [
       "claude",
       "codex-hi",
-      "agy-argon"
+      "agy-argon",
+      "agy-flash"
     ]
   },
   "fatal_patterns": [
-    "user location is not supported",
+    "user location is not supported"
+  ],
+  "auth_patterns": [
+    "refresh_token_invalidated",
+    "token_revoked",
+    "please log in again",
     "not logged in",
     "please run /login",
-    "unauthenticated"
-  ]
+    "unauthenticated",
+    "invalid authentication credentials"
+  ],
+  "auth_cooldown_hours": 12
 }
