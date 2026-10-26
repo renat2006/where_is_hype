@@ -1,0 +1,45 @@
+# OS / редакторы
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Секреты и локальные настройки
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node / фронтенд
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Python / бэкенд
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Тесты в браузере
+playwright-report/
+test-results/
+
+# Данные: выгрузки опросов и интервью с контактами в репо не кладём
+data/raw/
+*.sqlite
+*.sqlite3
+*.db
