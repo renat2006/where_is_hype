@@ -9,7 +9,7 @@ export function AppLayout() {
   return (
     <div className={showBottomNav ? 'min-h-dvh pb-[76px]' : 'min-h-dvh'}>
       <Outlet />
-      {showBottomNav && <BottomNav eveningCount={0} />}
+      {showBottomNav && <BottomNav />}
     </div>
   );
 }

@@ -1,9 +1,18 @@
+import { QueryClient, QueryClientContext, useQuery } from '@tanstack/react-query';
 import type { Location, Place, SavedPlace } from '@where-is-hype/core';
 import clsx from 'clsx';
 import { Map as MapLibreMap } from 'maplibre-gl';
-import { type HTMLAttributes, type ReactNode, useEffect, useRef, useState } from 'react';
+import {
+  type HTMLAttributes,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { GARDEN_RING_CENTER } from '@/entities/place';
+import { shortlistQueries } from '@/entities/shortlist';
 import { useTheme } from '@/shared/lib/theme';
 import { MetroStation, MyLocationDot, Sticker, StickerCluster } from '@/shared/ui/sticker';
 import {
@@ -54,6 +63,15 @@ function canSupportWebGl(): boolean {
   }
 }
 
+const fallbackQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      retry: false,
+    },
+  },
+});
+
 export function PlacesMap({
   places,
   selectedPlaceId,
@@ -80,6 +98,18 @@ export function PlacesMap({
   ...rest
 }: PlacesMapProps) {
   const { resolvedTheme } = useTheme();
+  const contextQueryClient = useContext(QueryClientContext);
+  const activeQueryClient = contextQueryClient ?? fallbackQueryClient;
+  const shortlistQuery = useQuery(
+    {
+      ...shortlistQueries.mine(),
+      enabled: eveningPlaceIds === undefined && !showOrderBadges,
+    },
+    activeQueryClient,
+  );
+  const resolvedEveningPlaceIds =
+    eveningPlaceIds ??
+    (showOrderBadges ? undefined : shortlistQuery.data?.places.map((place) => place.id));
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<MapLibreMap | null>(null);
   const [containerSize, setContainerSize] = useState<{ width: number; height: number }>({
@@ -182,7 +212,7 @@ export function PlacesMap({
 
   const nodes = clusterMapPlaces(places, {
     selectedPlaceId,
-    eveningPlaceIds,
+    eveningPlaceIds: resolvedEveningPlaceIds,
     mutedPlaceIds,
     clusterRadiusPx,
     viewport,

@@ -10,6 +10,7 @@ import { HoursStatus, placeQueries, PlaceTypeLabel, PriceLabel } from '@/entitie
 import { isPlaceVisited, savedPlaceQueries, SourceVideo } from '@/entities/saved-place';
 import { DeletePlaceButton } from '@/features/delete-place';
 import { EditNote } from '@/features/edit-note';
+import { ShortlistToggleButton } from '@/features/shortlist-toggle';
 import { track } from '@/shared/lib/analytics';
 import { Button } from '@/shared/ui/button';
 import { EmptyState } from '@/shared/ui/empty-state';
@@ -134,7 +135,14 @@ export function PlacePage({
   const routeLinks = buildYandexMapsRouteLinks(place.location, origin);
   const reviewsUrl = buildYandexMapsReviewsUrl(place);
   const resolvedVisitSlot = hereSlot ?? visitSlot;
-  const resolvedEveningSlot = eveningSlot ?? shortlistSlot;
+  const resolvedEveningSlot =
+    eveningSlot !== undefined ? (
+      eveningSlot
+    ) : shortlistSlot !== undefined ? (
+      shortlistSlot
+    ) : (
+      <ShortlistToggleButton placeId={place.id} />
+    );
 
   const handleRouteClick = () => {
     track('route_clicked', { placeId: place.id, type: place.type });
