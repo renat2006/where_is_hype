@@ -15,7 +15,7 @@ case "$WORKTREES" in /*) ;; *) WORKTREES=$ROOT/$WORKTREES ;; esac
 
 export PATH="${EXTRA_PATH:+$EXTRA_PATH:}$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-agent=${1:?agent: agy-argon|agy-flash|codex-hi|claude}
+agent=${1:?agent: agy-argon|agy-flash|agy-opus|agy-sonnet|codex-hi|claude}
 task=${2:?task id, e.g. T01}
 port=${3:?port}
 base=${4:-$BASE_BRANCH}
@@ -61,8 +61,14 @@ log=$FARM/logs/$task.log
 pidfile=$FARM/state/$task.pid
 runner=$FARM/state/$task.run.sh
 case "$agent" in
-  agy-argon|agy-flash)
-    amodel=gemini-4-argon-high; [ "$agent" = agy-flash ] && amodel=gemini-3.8-flash-high
+  agy-*)
+    case "$agent" in
+      agy-argon) amodel=gemini-4-argon-high ;;
+      agy-flash) amodel=gemini-3.8-flash-high ;;
+      agy-opus) amodel=claude-opus-4-6-thinking ;;
+      agy-sonnet) amodel=claude-sonnet-4-6 ;;
+      *) echo "unknown agent $agent" >&2; exit 1 ;;
+    esac
     cmd="exec agy -p \"\$(cat $prompt)\" --model $amodel --dangerously-skip-permissions --add-dir $FARM --output-format stream-json < /dev/null"
     ;;
   codex-hi)

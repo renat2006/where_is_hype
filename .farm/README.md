@@ -1,6 +1,6 @@
 # Ферма агентов where_is_hype
 
-Работает на ПК (`ssh pc`, `~/dev/where_is_hype/.farm`). Агенты — `agy` (Gemini 4 Argon / 3.8 Flash), `codex`, `claude`.
+Работает на ПК (`ssh pc`, `~/dev/where_is_hype/.farm`). Агенты — `agy` (Gemini 4 Argon / 3.8 Flash, Claude Opus 4.6 / Sonnet 4.6), `codex`, `claude`.
 Каждая задача идёт в своей рабочей копии `.farm/worktrees/<ID>` на ветке `agents/<ID>`, по готовности
 ветка пушится в GitHub через remote `github-hype` (deploy key только на эту репу).
 
@@ -34,10 +34,10 @@
 
 | Роль | Порядок движков |
 |---|---|
-| build | agy-argon → codex-hi → claude |
-| research | agy-flash → agy-argon |
-| storm | agy-argon |
-| audit | claude → codex-hi → agy-argon |
+| build | agy-argon → agy-opus → agy-sonnet → codex-hi → claude |
+| research | agy-flash → agy-sonnet → agy-argon |
+| storm | agy-argon → agy-opus |
+| audit | agy-opus → claude → codex-hi → agy-sonnet → agy-argon → agy-flash |
 
 Лимиты одновременной работы: всего 6, argon 4, flash 3, codex-hi 2, claude 2. Движок `claude` выключен
 (`"enabled": false`), пока на ПК не выполнен `claude` → `/login`.

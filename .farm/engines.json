@@ -46,6 +46,27 @@
         "audit"
       ]
     },
+    "agy-opus": {
+      "max": 2,
+      "enabled": true,
+      "paid": false,
+      "roles": [
+        "build",
+        "audit",
+        "research",
+        "storm"
+      ]
+    },
+    "agy-sonnet": {
+      "max": 2,
+      "enabled": true,
+      "paid": false,
+      "roles": [
+        "build",
+        "audit",
+        "research"
+      ]
+    },
     "codex-hi": {
       "max": 2,
       "enabled": true,
@@ -71,19 +92,25 @@
   "role_order": {
     "build": [
       "agy-argon",
+      "agy-opus",
+      "agy-sonnet",
       "codex-hi",
       "claude"
     ],
     "research": [
       "agy-flash",
+      "agy-sonnet",
       "agy-argon"
     ],
     "storm": [
-      "agy-argon"
+      "agy-argon",
+      "agy-opus"
     ],
     "audit": [
+      "agy-opus",
       "claude",
       "codex-hi",
+      "agy-sonnet",
       "agy-argon",
       "agy-flash"
     ]
