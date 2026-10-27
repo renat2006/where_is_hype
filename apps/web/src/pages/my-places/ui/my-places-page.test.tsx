@@ -9,6 +9,7 @@ import {
   selectMetroOrigin,
   setStoredGeoOriginState,
 } from '@/features/geo-origin';
+import { setOfflineStatusOverride, writePersistedPlacesCache } from '@/features/offline-status';
 import { demoSeedPlacesFixture, enableMocks, resetMockState } from '@/shared/api';
 import * as analyticsModule from '@/shared/lib/analytics';
 
@@ -65,12 +66,14 @@ describe('MyPlacesPage', () => {
 
   beforeEach(() => {
     window.localStorage.clear();
+    setOfflineStatusOverride(null);
     resetGeoOriginState();
     resetEveningFilterMemory();
     resetMockState();
   });
 
   afterEach(() => {
+    setOfflineStatusOverride(null);
     resetEveningFilterMemory();
     resetMockState();
   });
@@ -247,5 +250,19 @@ describe('MyPlacesPage', () => {
     expect(screen.queryByRole('heading', { name: 'Ничего не подошло' })).not.toBeInTheDocument();
     expect(screen.getByTestId('router-location')).toHaveTextContent(/^\/$/);
     expect(screen.getAllByRole('listitem')).toHaveLength(8);
+  });
+
+  it('opens saved places offline from persisted cache with Screen 16 banner, timestamp, and disabled add action', () => {
+    const updatedAtMs = new Date('2026-10-27T18:40:00+03:00').getTime();
+    writePersistedPlacesCache(demoSeedPlacesFixture.slice(0, 4), updatedAtMs);
+    setOfflineStatusOverride(true);
+
+    renderWithRouter(<MyPlacesPage autoRequestGeolocation={false} now={demoNow} />);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Нет сети.');
+    expect(screen.getByRole('status')).toHaveTextContent('Показываем сохранённое');
+    expect(screen.getByTestId('offline-updated-at')).toHaveTextContent('обновлено в 18:40');
+    expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    expect(screen.getByRole('button', { name: 'Добавить место · нужна сеть' })).toBeDisabled();
   });
 });
