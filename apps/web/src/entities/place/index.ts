@@ -1,2 +1,42 @@
-export { placeQueries } from './api/place-queries';
+export {
+  fetchPlaces,
+  placeQueries,
+  reportMissingPlace,
+  reportPlace,
+  resolveLink,
+  resolvePlaceLink,
+  searchPlaces,
+  useReportMissingPlaceMutation,
+  useReportPlaceMutation,
+  useResolveLinkMutation,
+  useResolvePlaceLinkMutation,
+} from './api/place-queries';
+export type {
+  Candidate,
+  Place,
+  PlaceMetro,
+  PlaceType,
+  Platform,
+  SourcePlatform,
+} from './model/place-model';
+export {
+  candidateSchema,
+  canSearchPlaces,
+  detectPlatform,
+  GARDEN_RING_CENTER,
+  GARDEN_RING_RADIUS_M,
+  isInsideGardenRing,
+  MIN_SEARCH_QUERY_LENGTH,
+  normalizeSearchQuery,
+  placeMetroSchema,
+  placeSchema,
+  placeTypeLabel,
+  placeTypes,
+  placeTypeSchema,
+  platformLabel,
+  platforms,
+  platformSchema,
+  sortPlacesByDistance,
+  sourcePlatformSchema,
+} from './model/place-model';
 export { PlaceCard } from './ui/place-card';

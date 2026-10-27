@@ -1,2 +1,61 @@
-export { ApiError, apiGet } from './http-client';
+export { apiDelete, ApiError, apiGet, apiPatch, apiPost, apiPut } from './http-client';
+export type {
+  AnalyticsEventInput,
+  AnalyticsEventResponse,
+  MarkVisitInput,
+  ReportPlaceInput,
+  ReportPlaceResponse,
+  ResolveLinkInput,
+  SavePlaceInput,
+  Session,
+  SubmitVoteInput,
+  UpdateNoteInput,
+  UpdateShortlistInput,
+  UpdateVisitExpectationInput,
+} from './mocks/contracts';
+export {
+  analyticsEventInputSchema,
+  analyticsEventResponseSchema,
+  markVisitInputSchema,
+  MOCK_DB_STORAGE_KEY,
+  reportPlaceInputSchema,
+  reportPlaceResponseSchema,
+  resolveLinkInputSchema,
+  savePlaceInputSchema,
+  SESSION_STORAGE_KEY,
+  sessionSchema,
+  submitVoteInputSchema,
+  updateNoteInputSchema,
+  updateShortlistInputSchema,
+  updateVisitExpectationInputSchema,
+  VOTER_ID_STORAGE_KEY,
+} from './mocks/contracts';
 export { enableMocks } from './mocks/enable-mocks';
+export {
+  DEMO_COFFEE_LINK,
+  DEMO_LINKS,
+  DEMO_RECOGNIZED_LINK,
+  DEMO_SEED_PLACE_IDS,
+  DEMO_UNKNOWN_LINK,
+  DEMO_UNRECOGNIZED_LINK,
+  demoLinks,
+  demoSeedPlacesFixture,
+  placesFixture,
+} from './mocks/fixtures';
+export type { MockDbState } from './mocks/handlers';
+export {
+  GARDEN_RING_CENTER,
+  GARDEN_RING_RADIUS_M,
+  getOrCreateBrowserVoterId,
+  getStandardDelayMs,
+  handlers,
+  isInsideGardenRing,
+  readMockState,
+  resetMockState,
+  RESOLVE_LINK_DELAY_MS,
+  resolveLinkCandidates,
+  searchPlacesInFixture,
+  setMockRealisticDelays,
+  STANDARD_DELAY_RANGE_MS,
+  writeMockState,
+} from './mocks/handlers';
