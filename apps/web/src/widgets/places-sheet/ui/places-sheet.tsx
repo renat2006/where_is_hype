@@ -1,6 +1,6 @@
 import type { Location, Place, SavedPlace } from '@where-is-hype/core';
 import clsx from 'clsx';
-import type { HTMLAttributes } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 
 import { PlaceRow } from '@/entities/place';
 import { ShortlistToggleButton, useShortlistState } from '@/features/shortlist-toggle';
@@ -25,6 +25,7 @@ export interface PlacesSheetProps extends Omit<HTMLAttributes<HTMLElement>, 'tit
   onSelectPlace?: ((placeId: string, item: Place | SavedPlace) => void) | undefined;
   getPlaceHref?: ((placeId: string) => string | undefined) | undefined;
   at?: Date | undefined;
+  footer?: ReactNode | undefined;
 }
 
 function isInEveningSet(
@@ -55,6 +56,7 @@ export function PlacesSheet({
   onSelectPlace,
   getPlaceHref,
   at,
+  footer,
   className,
   ...rest
 }: PlacesSheetProps) {
@@ -123,6 +125,7 @@ export function PlacesSheet({
           );
         })}
       </div>
+      {footer}
     </Sheet>
   );
 }

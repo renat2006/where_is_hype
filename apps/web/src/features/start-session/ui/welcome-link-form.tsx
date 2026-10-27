@@ -3,17 +3,21 @@ import { useNavigate } from 'react-router';
 
 import { buildAddPlacePath, readClipboardLink } from '@/features/start-session/lib/clipboard';
 import { useStartSession } from '@/features/start-session/model/start-session-model';
+import { demoLinks } from '@/shared/api';
+import { env } from '@/shared/config';
 import { Button } from '@/shared/ui/button';
 import { TextField } from '@/shared/ui/text-field';
 
 export interface WelcomeLinkFormProps {
   initialUrl?: string | undefined;
   autoStartSession?: boolean | undefined;
+  showDemoLinks?: boolean | undefined;
 }
 
 export function WelcomeLinkForm({
   initialUrl = '',
   autoStartSession = true,
+  showDemoLinks = env.apiMocks,
 }: WelcomeLinkFormProps) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,6 +26,18 @@ export function WelcomeLinkForm({
   const [url, setUrl] = useState(initialUrl);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const submitTargetUrl = async (targetUrl: string) => {
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      await startSession();
+    } finally {
+      setIsSubmitting(false);
+    }
+
+    await navigate(buildAddPlacePath(targetUrl));
+  };
 
   const handleUrlChange = (nextValue: string) => {
     setUrl(nextValue);
@@ -61,15 +77,7 @@ export function WelcomeLinkForm({
       }
     }
 
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      await startSession();
-    } finally {
-      setIsSubmitting(false);
-    }
-
-    await navigate(buildAddPlacePath(targetUrl));
+    await submitTargetUrl(targetUrl);
   };
 
   return (
@@ -94,6 +102,27 @@ export function WelcomeLinkForm({
         onClear={handleClear}
         error={error}
       />
+
+      {showDemoLinks && (
+        <div
+          aria-label="Примеры ссылок для демо"
+          className="flex flex-wrap items-center gap-2 pt-0.5"
+        >
+          {demoLinks.map((demo) => (
+            <Button
+              key={demo.id}
+              variant="text"
+              disabled={isSubmitting}
+              onClick={() => {
+                setUrl(demo.url);
+                void submitTargetUrl(demo.url);
+              }}
+            >
+              {demo.label}
+            </Button>
+          ))}
+        </div>
+      )}
 
       <Button
         type="submit"
