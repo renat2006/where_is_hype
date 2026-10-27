@@ -10,6 +10,7 @@ import { HoursStatus, placeQueries, PlaceTypeLabel, PriceLabel } from '@/entitie
 import { isPlaceVisited, savedPlaceQueries, SourceVideo } from '@/entities/saved-place';
 import { DeletePlaceButton } from '@/features/delete-place';
 import { EditNote } from '@/features/edit-note';
+import { MarkVisitButton } from '@/features/mark-visit';
 import { ShortlistToggleButton } from '@/features/shortlist-toggle';
 import { track } from '@/shared/lib/analytics';
 import { Button } from '@/shared/ui/button';
@@ -134,7 +135,14 @@ export function PlacePage({
   const isCompactTitle = isLongPlaceTitle(place.name);
   const routeLinks = buildYandexMapsRouteLinks(place.location, origin);
   const reviewsUrl = buildYandexMapsReviewsUrl(place);
-  const resolvedVisitSlot = hereSlot ?? visitSlot;
+  const resolvedVisitSlot =
+    hereSlot !== undefined ? (
+      hereSlot
+    ) : visitSlot !== undefined ? (
+      visitSlot
+    ) : (
+      <MarkVisitButton place={place} savedPlace={savedPlace} at={at} />
+    );
   const resolvedEveningSlot =
     eveningSlot !== undefined ? (
       eveningSlot
