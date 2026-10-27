@@ -47,6 +47,10 @@ export function SearchPlaceView({
   const trimmedSourceUrl = sourceUrl.trim();
   const duplicatePlace =
     selectedPlace && savedPlaceIds.has(selectedPlace.id) ? selectedPlace : null;
+  const topUnsavedPlace =
+    !duplicatePlace && isSearchable
+      ? (places.find((item) => !savedPlaceIds.has(item.id)) ?? null)
+      : null;
 
   const handleSelectSuggestion = (suggestionId: string) => {
     const place = places.find((item) => item.id === suggestionId);
@@ -123,6 +127,20 @@ export function SearchPlaceView({
       />
 
       {duplicatePlace && <CandidateCard place={duplicatePlace} alreadySaved onOpen={onOpenPlace} />}
+
+      {topUnsavedPlace && (
+        <Button
+          variant="primary"
+          fullWidth
+          loading={savingPlaceId === topUnsavedPlace.id}
+          loadingLabel="Сохраняем"
+          onClick={() => {
+            onSelectPlace(topUnsavedPlace);
+          }}
+        >
+          Да, сохранить
+        </Button>
+      )}
 
       {hasReportedCurrentQuery && (
         <p role="status" className="m-0 text-sm leading-5 text-ink-muted">

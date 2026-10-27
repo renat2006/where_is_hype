@@ -353,6 +353,21 @@ function MyPlacesPageContent({
               setSelectedPlaceId(placeId);
               navigateToPlace(placeId);
             }}
+            footer={
+              showDemoSeed && places.length < 8 && !isFilterActive ? (
+                <div className="flex justify-center border-t-[1.5px] border-line py-2">
+                  <Button
+                    variant="text"
+                    loading={seedDemoMutation.isPending}
+                    onClick={() => {
+                      seedDemoMutation.mutate();
+                    }}
+                  >
+                    Демо: добавить 8 мест
+                  </Button>
+                </div>
+              ) : undefined
+            }
           />
         )
       ) : (

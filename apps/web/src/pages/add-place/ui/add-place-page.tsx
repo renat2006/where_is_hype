@@ -72,7 +72,11 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
     if (initialUrlParam.length > 0 && autoResolvedRef.current !== initialUrlParam) {
       autoResolvedRef.current = initialUrlParam;
       void startResolve(initialUrlParam);
+      return () => {
+        autoResolvedRef.current = null;
+      };
     }
+    return undefined;
   }, [initialUrlParam, startResolve]);
 
   const handleSubmitUrl = (submittedUrl: string) => {
