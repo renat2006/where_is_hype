@@ -1,0 +1,7 @@
+worktrees/
+state/
+logs/
+prompts/
+reports/
+farm.env
+__pycache__/

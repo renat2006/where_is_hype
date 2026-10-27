@@ -1,3 +1,3 @@
 {
-  "Exclude": ["pnpm-lock\\.yaml$", "uv\\.lock$", "\\.md$"]
+  "Exclude": ["pnpm-lock\\.yaml$", "uv\\.lock$", "\\.md$", "^\\.farm/"]
 }
