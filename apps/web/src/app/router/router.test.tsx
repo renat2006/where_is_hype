@@ -1,13 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { clearStoredSession, setStoredSession } from '@/entities/session';
 
 import { routes } from './router';
 
 describe('app router', () => {
+  beforeEach(() => {
+    setStoredSession({ id: 'usr-router-test', createdAt: '2026-10-27T10:00:00.000Z' });
+  });
+
+  afterEach(() => {
+    clearStoredSession();
+  });
+
   it.each([
     { path: '/', heading: 'Мои места', hasNav: true },
-    { path: '/welcome', heading: 'Знакомство', hasNav: false },
+    { path: '/welcome', heading: /Увидел в\s+рилсах — сходи вживую/, hasNav: false },
     { path: '/add', heading: 'Добавить место', hasNav: false },
     { path: '/place/sosny', heading: 'Карточка места', hasNav: true },
     { path: '/evening', heading: 'На вечер', hasNav: true },
@@ -27,5 +37,17 @@ describe('app router', () => {
     } else {
       expect(nav).not.toBeInTheDocument();
     }
+  });
+
+  it('redirects / to /welcome when there is no anonymous profile yet', () => {
+    clearStoredSession();
+    const memoryRouter = createMemoryRouter(routes, { initialEntries: ['/'] });
+    render(<RouterProvider router={memoryRouter} />);
+
+    expect(memoryRouter.state.location.pathname).toBe('/welcome');
+    expect(
+      screen.getByRole('heading', { level: 1, name: /Увидел в\s+рилсах — сходи вживую/ }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Основная' })).not.toBeInTheDocument();
   });
 });
