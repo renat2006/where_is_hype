@@ -15,7 +15,7 @@ import {
   visitExpectationSchema,
   visitSchema,
 } from '@where-is-hype/core';
-import { delay, http, HttpResponse } from 'msw';
+import { delay, http, HttpResponse, passthrough } from 'msw';
 import { z } from 'zod';
 
 import { env } from '@/shared/config';
@@ -796,7 +796,11 @@ export const handlers = [
     return HttpResponse.json(shared);
   }),
 
-  http.get('*/s/:token', async ({ params }) => {
+  http.get('*/s/:token', async ({ params, request }) => {
+    if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
+      return passthrough();
+    }
+
     await waitMockDelay('standard');
     const token = String(params.token ?? '');
     const db = readMockState();
