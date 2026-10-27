@@ -51,15 +51,12 @@
       "enabled": true,
       "paid": false,
       "roles": [
-        "build",
-        "audit",
-        "research",
-        "storm"
+        "audit"
       ]
     },
     "agy-sonnet": {
       "max": 2,
-      "enabled": true,
+      "enabled": false,
       "paid": false,
       "roles": [
         "build",
@@ -92,26 +89,21 @@
   "role_order": {
     "build": [
       "agy-argon",
-      "agy-opus",
-      "agy-sonnet",
       "codex-hi",
       "claude"
     ],
     "research": [
-      "agy-flash",
-      "agy-sonnet",
-      "agy-argon"
+      "agy-argon",
+      "agy-flash"
     ],
     "storm": [
-      "agy-argon",
-      "agy-opus"
+      "agy-argon"
     ],
     "audit": [
+      "agy-argon",
       "agy-opus",
       "claude",
       "codex-hi",
-      "agy-sonnet",
-      "agy-argon",
       "agy-flash"
     ]
   },
