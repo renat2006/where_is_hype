@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Правила для агентов</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&amp;family=Martian+Mono:wght@400;500&amp;family=Onest:wght@400;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.h{font-family:'Dela Gothic One',sans-serif;font-size:32px;margin:0;border-bottom:1.5px solid #17140F;padding-bottom:12px}
+.m{font-family:'Martian Mono',monospace;font-size:13px}
+.r{padding:12px 0;border-bottom:1.5px solid rgba(23,20,15,.12);font-size:16px;line-height:24px}
+</style>
+</helmet>
+<div style="width: 1440px; height: 2400px; box-sizing: border-box; padding: 64px; background: #F4EFE6; color: #17140F; font-family: Onest, sans-serif; display: flex; flex-direction: column; gap: 48px">
+<h1 style="margin: 0; font-family: 'Dela Gothic One'; font-size: 64px">Правила для агентов</h1>
+
+<section style="display: flex; flex-direction: column; gap: 12px">
+<h2 class="h">10 запретов</h2>
+<div class="r">1. Не ставить белый текст на маркер. На <span class="m">marker</span> только <span class="m">on-marker</span>.</div>
+<div class="r">2. Не больше одной рукописной фразы (Caveat) на экран. Никогда в кнопках, ошибках, ценах и часах.</div>
+<div class="r">3. Не рисовать свои обводки, зачёркивания, стрелки и скотч — только ассеты <span class="m">marker-oval-1..3</span>, <span class="m">strike</span>, <span class="m">arrow-hand</span>, <span class="m">tape</span>.</div>
+<div class="r">4. Не передавать смысл только цветом: у статуса всегда текст или иконка.</div>
+<div class="r">5. Не придумывать цвета вне токенов. Новый цвет = новый токен в обеих темах.</div>
+<div class="r">6. Не использовать красный для ошибок: ошибка = <span class="m">ink</span> + иконка + текст на <span class="m">note-bg</span>.</div>
+<div class="r">7. Не ставить мягкие размытые тени. Только <span class="m">raised</span>: обводка 1,5 ink + тень 0/3/0.</div>
+<div class="r">8. Не писать цифры не моноширинным: время, расстояние, чек, голоса — <span class="m">font-mono</span>.</div>
+<div class="r">9. Не использовать Dela Gothic One меньше 20 px и для длинного текста.</div>
+<div class="r">10. Не рисовать хайп-индекс, рейтинги, отзывы, свайпы и ленты — этого нет в MVP. Не прятать места с неизвестными часами или чеком, а помечать «не уточнено».</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px">
+<h2 class="h">Где декор можно, а где нельзя</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+<div><b>Можно:</b> наклейки на карте и в списке, выбор места (обводка), «Был здесь», пустые состояния, знакомство, блок «Исходный ролик», заметка, «Сходили вчера?», страница друга (заголовок).</div>
+<div><b>Нельзя:</b> поля ввода, фильтры, ошибки, тосты, цены и часы, навигация, кнопки, юридические и системные тексты. Поворот ±4° — только у наклеек, скотча и блока ролика.</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px">
+<h2 class="h">Для задачи Y используй компонент X</h2>
+<div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px">
+<div class="r">Главное действие экрана (одно!)</div><div class="r m">btn-primary</div>
+<div class="r">Внешние переходы: маршрут, отзывы</div><div class="r m">btn-secondary · ссылка ↗</div>
+<div class="r">Сброс, отмена, «Не то»</div><div class="r m">btn-text</div>
+<div class="r">Кнопка поверх карты</div><div class="r m">btn-map (blur + glass-фолбэк)</div>
+<div class="r">Тип, час, чек в фильтре</div><div class="r m">chip · hour-picker · price-picker</div>
+<div class="r">Место на карте</div><div class="r m">sticker-{type}-{state} · cluster</div>
+<div class="r">Место в списке</div><div class="r m">place-row</div>
+<div class="r">Результат распознавания ролика</div><div class="r m">candidate-card</div>
+<div class="r">Открыто / закрыто / не уточнено</div><div class="r m">hours-status</div>
+<div class="r">Голос друга</div><div class="r m">vote + avatars</div>
+<div class="r">Удаление с отменой</div><div class="r m">toast (5 с)</div>
+<div class="r">Ошибка / нет сети</div><div class="r m">error-note · offline-banner</div>
+<div class="r">Список под картой</div><div class="r m">sheet: peek 96 / half 50% / full</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px">
+<h2 class="h">Токены в коде · Tailwind 4</h2>
+<pre class="m" style="margin: 0; padding: 24px; border-radius: 16px; background: #17140F; color: #F2ECE1; font-size: 13px; line-height: 20px; white-space: pre-wrap">@theme {
+  --color-bg: #F4EFE6;  --color-surface: #FFFDF8;  --color-ink: #17140F;  --color-ink-muted: #6B6358;
+  --color-marker: #FF4A1C;  --color-on-marker: #17140F;  --color-link: #D63A0E;  --color-note-bg: #FFF1B8;
+  --color-st-coffee: #FFD23F;  --color-st-cafe: #9ADBC5;  --color-st-rest: #C9B6FF;  --color-st-bar: #FF4A1C;
+  --font-display: "Dela Gothic One";  --font-ui: "Onest";  --font-hand: "Caveat";  --font-mono: "Martian Mono";
+  --radius-sm: 8px;  --radius-md: 16px;  --radius-lg: 24px;  --radius-pill: 999px;
+  --shadow-raised: 0 3px 0 var(--color-ink);
+  --ease-stick: cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="night"] { --color-bg: #16130F; --color-surface: #221E18; --color-ink: #F2ECE1;
+  --color-ink-muted: #A79F92; --color-marker: #FF6A3D; --color-on-marker: #16130F; --color-link: #FF6A3D; --color-note-bg: #3D3412; }</pre>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2400}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

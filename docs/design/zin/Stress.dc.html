@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Проверка на прочность</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&amp;family=Dela+Gothic+One&amp;family=Martian+Mono:wght@400;500;600&amp;family=Onest:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.t-day{--bg:#F4EFE6;--surface:#FFFDF8;--ink:#17140F;--ink-muted:#6B6358;--line:rgba(23,20,15,.12);--marker:#FF4A1C;--on-marker:#17140F;--note-bg:#FFF1B8;--glass:rgba(255,253,248,.82);--map-land:#EEE7D9;--map-road:rgba(23,20,15,.17);--map-ring:rgba(23,20,15,.42);--map-water:#D9D0EE}
+.t-night{--bg:#16130F;--surface:#221E18;--ink:#F2ECE1;--ink-muted:#A79F92;--line:rgba(242,236,225,.14);--marker:#FF6A3D;--on-marker:#16130F;--note-bg:#3D3412;--glass:rgba(34,30,24,.82);--map-land:#1D1914;--map-road:rgba(242,236,225,.15);--map-ring:rgba(242,236,225,.38);--map-water:#2A2638}
+.t-day,.t-night{background:var(--bg);color:var(--ink);font-family:Onest,system-ui,sans-serif}
+.f-display{font-family:'Dela Gothic One',Onest,sans-serif;font-weight:400}
+.f-mono{font-family:'Martian Mono',ui-monospace,monospace}
+.lbl{font-family:'Martian Mono',monospace;font-size:12px;line-height:16px;color:#6B6358}
+.ph{position:relative;width:360px;height:760px;border-radius:24px;border:1.5px solid #17140F;overflow:hidden;box-sizing:border-box;flex:none;display:flex;flex-direction:column}
+.cap{display:flex;flex-direction:column;gap:4px;width:360px;font:600 15px/20px Onest,sans-serif;color:#17140F}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:999px;font:600 16px/1 Onest,sans-serif;border:1.5px solid var(--ink);box-sizing:border-box}
+.btn-p{background:var(--marker);color:var(--on-marker);box-shadow:0 3px 0 var(--ink)}
+.btn-s{background:var(--surface);color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);font:500 15px/1 Onest,sans-serif;box-sizing:border-box;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:0 10px;border-radius:999px;font:500 13px/1 Onest,sans-serif;color:#17140F;white-space:nowrap}
+.stk{position:relative;width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px #17140F,0 3px 0 1.5px #17140F;display:flex;align-items:center;justify-content:center;color:#17140F;box-sizing:border-box;flex:none}
+.stk-coffee{background:#FFD23F}.stk-cafe{background:#9ADBC5}.stk-rest{background:#C9B6FF}.stk-bar{background:#FF4A1C}
+.av{width:24px;height:24px;border-radius:50%;border:2px solid var(--surface);display:flex;align-items:center;justify-content:center;font:600 10px/1 Onest,sans-serif;color:#17140F;margin-left:-7px;box-sizing:border-box}
+.err{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--note-bg);color:var(--ink);font-size:14px;line-height:20px}
+.sk{border-radius:8px;background:var(--line)}
+</style>
+</helmet>
+<div class="t-day" style="width: 2528px; height: 1000px; box-sizing: border-box; padding: 64px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; align-items: baseline; gap: 16px"><span class="f-display" style="font-size: 32px">Проверка на прочность</span><span class="lbl">ночь, пустой фильтр и офлайн — на экранах 10, 16 и в ночном ряду</span></div>
+<div style="display: flex; gap: 48px">
+
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="cap">40 мест в одном районе<span class="lbl">кластеры, число моно, верх — surface</span></div>
+<div class="ph t-day">
+<div style="position: absolute; inset: 0">
+<svg viewBox="0 0 360 760" width="360" height="760" aria-hidden="true" style="position: absolute; inset: 0"><rect width="360" height="760" style="fill: var(--map-land)"></rect><path d="M-10 600 C 80 560 160 640 380 590" style="fill: none; stroke: var(--map-water); stroke-width: 24"></path><g style="fill: none; stroke: var(--map-road); stroke-width: 1.5"><path d="M180 0 L 176 760"></path><path d="M0 300 L 360 330"></path><path d="M40 40 L 320 700"></path><path d="M330 50 L 40 700"></path></g></svg>
+<div style="position: absolute; left: 120px; top: 240px; width: 72px; height: 60px"><div class="stk stk-rest" style="position: absolute; left: 4px; top: 10px; transform: rotate(-8deg)"></div><div class="stk stk-bar" style="position: absolute; left: 18px; top: 4px; transform: rotate(5deg)"></div><div class="stk" style="position: absolute; left: 30px; top: 12px; background: #FFFDF8"><span class="f-mono" style="font-size: 13px; font-weight: 600">24</span></div></div>
+<div style="position: absolute; left: 220px; top: 340px; width: 72px; height: 60px"><div class="stk stk-cafe" style="position: absolute; left: 4px; top: 10px; transform: rotate(-6deg)"></div><div class="stk stk-coffee" style="position: absolute; left: 18px; top: 4px; transform: rotate(4deg)"><span class="f-mono" style="font-size: 13px; font-weight: 600">11</span></div></div>
+<div class="stk stk-coffee" style="position: absolute; left: 70px; top: 380px; transform: rotate(3deg)"></div>
+<div class="stk stk-bar" style="position: absolute; left: 260px; top: 200px; transform: rotate(-4deg)"></div>
+<div class="stk stk-rest" style="position: absolute; left: 150px; top: 440px; transform: rotate(2deg)"></div>
+<div class="stk stk-cafe" style="position: absolute; left: 60px; top: 170px; transform: rotate(-3deg)"></div>
+<div class="stk stk-coffee" style="position: absolute; left: 290px; top: 470px; transform: rotate(4deg)"></div>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 96px; background: var(--surface); border-top: 1.5px solid var(--ink); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 8px"><span style="width: 36px; height: 4px; border-radius: 4px; background: var(--ink-muted)"></span><span style="font-size: 15px; font-weight: 600">Китай-город · <span class="f-mono" style="font-size: 13px">40</span> мест · был в <span class="f-mono" style="font-size: 13px">6</span></span></div>
+</div></div>
+
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="cap">Название из 40 символов<span class="lbl">список — 1 строка + «…», карточка — перенос</span></div>
+<div class="ph t-day">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+<div style="border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface)">
+<div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px"><div class="stk stk-bar" style="width: 36px; height: 36px"></div><div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><b style="font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Ночной трамвай на Чистых прудах, бар №2</b><span style="font-size: 13px; color: var(--ink-muted)">Бар · Чистые пруды</span></div><span class="f-mono" style="font-size: 12px; align-self: flex-start">350 м</span></div>
+</div>
+<div style="display: flex; gap: 14px; align-items: flex-start"><div class="stk stk-bar" style="width: 56px; height: 56px"></div><h2 class="f-display" style="margin: 0; font-size: 26px; line-height: 1.1; min-width: 0; overflow-wrap: anywhere">Ночной трамвай на Чистых прудах, бар №2</h2></div>
+<span class="lbl" style="color: var(--ink-muted)">карточка: text-2xl → text-xl, если строк больше 3</span>
+<div style="border: 1.5px solid var(--ink); border-radius: 16px; background: var(--surface); padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<b style="font-size: 17px; line-height: 22px">Ночной трамвай на Чистых прудах, бар №2</b>
+<span style="font-size: 13px; color: var(--ink-muted)">Бар · Чистопрудный бульвар, 12 стр. 4 · м. Чистые пруды</span>
+<button class="btn btn-p">Да, сохранить</button>
+</div>
+</div>
+</div></div>
+
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="cap">Ошибка распознавания<span class="lbl">ни одного кандидата → сразу поиск</span></div>
+<div class="ph t-day">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 16px">
+<span class="f-mono" style="font-size: 12px; color: var(--ink-muted)">youtube.com/shorts/xK2…</span>
+<h2 class="f-display" style="margin: 0; font-size: 26px; line-height: 1.1">Не узнали место</h2>
+<div class="err" role="alert"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>В ролике нет адреса и названия. Напиши название, найдём сами.</span></div>
+<div style="display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 14px; border-radius: 16px; border: 1.5px solid var(--ink); background: var(--surface); outline: 2.5px solid var(--ink); outline-offset: 3px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="color: var(--ink-muted)">Название места</span></div>
+<button class="btn btn-s">Вставить другую ссылку</button>
+</div>
+</div></div>
+
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="cap">Медленная сеть<span class="lbl">скелетоны, тексты не прыгают; через 5 с — подсказка</span></div>
+<div class="ph t-day">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<span class="f-display" style="font-size: 20px">Где Хайп<span style="color: var(--marker)">?</span></span>
+<div class="sk" style="height: 260px; border-radius: 16px"></div>
+<div style="display: flex; gap: 12px; align-items: center"><div class="sk" style="width: 36px; height: 36px; border-radius: 50%"></div><div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><div class="sk" style="height: 14px; width: 70%"></div><div class="sk" style="height: 12px; width: 45%"></div></div></div>
+<div style="display: flex; gap: 12px; align-items: center"><div class="sk" style="width: 36px; height: 36px; border-radius: 50%"></div><div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><div class="sk" style="height: 14px; width: 60%"></div><div class="sk" style="height: 12px; width: 40%"></div></div></div>
+<div role="status" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; background: var(--surface); border: 1.5px dashed var(--ink); font-size: 14px"><b>Сеть медленная.</b><span style="color: var(--ink-muted)">Карта догрузится</span></div>
+</div>
+</div></div>
+
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="cap">Шрифт системы 200%<span class="lbl">rem везде, строки переносятся, кнопки растут в высоту</span></div>
+<div class="ph t-day">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<h2 class="f-display" style="margin: 0; font-size: 40px; line-height: 1.05">Сосны</h2>
+<span style="font-size: 28px; line-height: 36px">Большая Никитская, 12 · м. Охотный Ряд</span>
+<span class="pill" style="background: #9ADBC5; font-size: 24px; min-height: 44px; white-space: normal; padding: 6px 14px">Открыто до <span class="f-mono" style="font-size: 22px">00:00</span></span>
+<button class="btn btn-p" style="font-size: 28px; min-height: 72px; white-space: normal; text-align: center; padding: 12px 20px">В «На вечер»</button>
+<button class="btn btn-s" style="font-size: 28px; min-height: 72px">Маршрут</button>
+</div>
+</div></div>
+
+<div style="display: flex; flex-direction: column; gap: 12px"><div class="cap">5 мест в «На вечер» · ночь<span class="lbl">максимум списка, голоса и аватары</span></div>
+<div class="ph t-night">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<h2 class="f-display" style="margin: 0; font-size: 30px">На вечер</h2>
+<span style="font-size: 14px; color: var(--ink-muted)"><span class="f-mono" style="font-size: 12px">5</span> из <span class="f-mono" style="font-size: 12px">5</span> · ответили <span class="f-mono" style="font-size: 12px">6</span></span>
+<div style="border: 1.5px solid var(--ink); border-radius: 16px; background: var(--surface); overflow: hidden">
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px"><div class="stk stk-rest" style="width: 32px; height: 32px"></div><b style="flex: 1">Сосны</b><div style="display: flex; padding-left: 7px"><span class="av" style="background: #FFD23F">АК</span><span class="av" style="background: #9ADBC5">МЛ</span><span class="av" style="background: #C9B6FF">Д</span><span class="av" style="background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink)">+2</span></div><span class="f-mono" style="font-size: 14px; font-weight: 600">5</span></div>
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-top: 1.5px solid var(--line)"><div class="stk stk-coffee" style="width: 32px; height: 32px"></div><b style="flex: 1">Жук и Пчела</b><div style="display: flex; padding-left: 7px"><span class="av" style="background: #9ADBC5">МЛ</span><span class="av" style="background: #FFD23F">ОП</span></div><span class="f-mono" style="font-size: 14px; font-weight: 600">2</span></div>
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-top: 1.5px solid var(--line)"><div class="stk stk-cafe" style="width: 32px; height: 32px"></div><b style="flex: 1">Мята на крыше</b><div style="display: flex; padding-left: 7px"><span class="av" style="background: #C9B6FF">Д</span></div><span class="f-mono" style="font-size: 14px; font-weight: 600">1</span></div>
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-top: 1.5px solid var(--line)"><div class="stk stk-bar" style="width: 32px; height: 32px"></div><b style="flex: 1">Журавли</b><span class="f-mono" style="font-size: 14px; color: var(--ink-muted)">0</span></div>
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-top: 1.5px solid var(--line)"><div class="stk stk-cafe" style="width: 32px; height: 32px"></div><b style="flex: 1">Окна во двор</b><span class="f-mono" style="font-size: 14px; color: var(--ink-muted)">0</span></div>
+</div>
+<span style="font-size: 13px; color: var(--ink-muted)">Больше 5 нельзя: «В „На вечер“» на карточке становится неактивной с подписью «Уже 5 мест».</span>
+<button class="btn btn-p">Отправить ещё раз</button>
+</div>
+</div></div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2528,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

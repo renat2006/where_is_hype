@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты и состояния</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&amp;family=Dela+Gothic+One&amp;family=Martian+Mono:wght@400;500;600&amp;family=Onest:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.t-day{--bg:#F4EFE6;--surface:#FFFDF8;--ink:#17140F;--ink-muted:#6B6358;--line:rgba(23,20,15,.12);--marker:#FF4A1C;--on-marker:#17140F;--link:#D63A0E;--note-bg:#FFF1B8;--closed:#E6DFD2;--tape:rgba(226,212,178,.85);--glass:rgba(255,253,248,.82)}
+.t-night{--bg:#16130F;--surface:#221E18;--ink:#F2ECE1;--ink-muted:#A79F92;--line:rgba(242,236,225,.14);--marker:#FF6A3D;--on-marker:#16130F;--link:#FF6A3D;--note-bg:#3D3412;--closed:#3A342B;--tape:rgba(242,236,225,.28);--glass:rgba(34,30,24,.82)}
+.t-day,.t-night{background:var(--bg);color:var(--ink);font-family:Onest,system-ui,sans-serif}
+a{color:var(--link)}a:hover{color:var(--ink)}
+.f-display{font-family:'Dela Gothic One',Onest,sans-serif;font-weight:400}
+.f-hand{font-family:Caveat,cursive;font-weight:600}
+.f-mono{font-family:'Martian Mono',ui-monospace,monospace}
+.lbl{font-family:'Martian Mono',monospace;font-size:12px;line-height:16px;color:var(--ink-muted)}
+.sec-h{display:flex;align-items:baseline;gap:16px;border-bottom:1.5px solid var(--ink);padding-bottom:12px}
+.sec-n{font-family:'Martian Mono',monospace;font-size:14px;color:var(--ink-muted)}
+.sec-t{font-family:'Dela Gothic One',sans-serif;font-size:32px;line-height:1.1;margin:0}
+.grid7{display:grid;grid-template-columns:200px repeat(6,minmax(0,1fr));gap:16px;align-items:center}
+.cell{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:999px;font:600 16px/1 Onest,sans-serif;border:1.5px solid var(--ink);cursor:pointer;box-sizing:border-box;text-decoration:none;white-space:nowrap}
+.btn-p{background:var(--marker);color:var(--on-marker);box-shadow:0 3px 0 var(--ink)}
+.btn-s{background:var(--surface);color:var(--ink)}
+.btn-t{background:transparent;border-color:transparent;color:var(--ink);text-decoration:underline;text-underline-offset:4px;padding:0 8px}
+.is-press{transform:translateY(3px);box-shadow:none}
+.is-focus{outline:2.5px solid var(--ink);outline-offset:3px}
+.is-off{background:var(--line);color:var(--ink-muted);border-color:transparent;box-shadow:none;text-decoration:none}
+.rbtn{width:48px;height:48px;border-radius:999px;border:1.5px solid var(--ink);background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:inline-flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;box-sizing:border-box}
+.field{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;border-radius:16px;border:1.5px solid var(--ink);background:var(--surface);box-sizing:border-box}
+.field input{all:unset;flex:1;min-width:0;font:400 16px/24px Onest,sans-serif;color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);font:500 15px/1 Onest,sans-serif;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.chip-on{background:var(--ink);color:var(--bg)}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0 10px;border-radius:999px;font:500 13px/1 Onest,sans-serif;color:#17140F;white-space:nowrap}
+.stk{position:relative;width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px #17140F,0 3px 0 1.5px #17140F;display:flex;align-items:center;justify-content:center;color:#17140F;box-sizing:border-box;flex:none}
+.stk-coffee{background:#FFD23F}.stk-cafe{background:#9ADBC5}.stk-rest{background:#C9B6FF}.stk-bar{background:#FF4A1C}
+.dots{display:inline-flex;gap:5px}.dots span{width:7px;height:7px;border-radius:50%;background:currentColor}
+.av{width:32px;height:32px;border-radius:50%;border:2px solid var(--surface);display:flex;align-items:center;justify-content:center;font:600 12px/1 Onest,sans-serif;color:#17140F;margin-left:-8px;box-sizing:border-box}
+.tape{position:absolute;width:88px;height:26px;background:var(--tape);clip-path:polygon(3% 0,97% 4%,100% 22%,96% 40%,100% 62%,97% 100%,4% 96%,0 78%,4% 56%,0 34%,3% 18%)}
+.err{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--note-bg);color:var(--ink);font-size:14px;line-height:20px}
+</style>
+</helmet>
+<div class="t-{{theme}}" style="width: 1440px; height: 2900px; box-sizing: border-box; padding: 64px; display: flex; flex-direction: column; gap: 56px">
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="sec-h"><span class="sec-n">01</span><h2 class="sec-t">Кнопки и поля · все состояния</h2><span class="lbl" style="margin-left: auto">тема меняется в Tweaks</span></div>
+<div class="grid7">
+<span></span><span class="lbl">обычная</span><span class="lbl">нажата</span><span class="lbl">фокус</span><span class="lbl">неактивна</span><span class="lbl">загрузка</span><span class="lbl">ошибка</span>
+
+<div style="display: flex; flex-direction: column; gap: 4px"><b>Главная</b><span class="lbl">btn-primary · маркер</span></div>
+<div><button class="btn btn-p">Да, сохранить</button></div>
+<div><button class="btn btn-p is-press">Да, сохранить</button></div>
+<div><button class="btn btn-p is-focus">Да, сохранить</button></div>
+<div><button class="btn btn-p is-off" disabled="">Да, сохранить</button></div>
+<div><button class="btn btn-p" aria-busy="true" aria-label="Сохраняем"><span class="dots"><span></span><span style="opacity: .6"></span><span style="opacity: .3"></span></span></button></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><button class="btn btn-p">Повторить</button><span style="font-size: 13px; color: var(--ink-muted)">Не сохранилось</span></div>
+
+<div style="display: flex; flex-direction: column; gap: 4px"><b>Вторичная</b><span class="lbl">btn-secondary · обводка</span></div>
+<div><button class="btn btn-s">Маршрут</button></div>
+<div><button class="btn btn-s is-press" style="background: var(--line)">Маршрут</button></div>
+<div><button class="btn btn-s is-focus">Маршрут</button></div>
+<div><button class="btn btn-s is-off" disabled="">Маршрут</button></div>
+<div><button class="btn btn-s" aria-busy="true" aria-label="Открываем"><span class="dots"><span></span><span style="opacity: .6"></span><span style="opacity: .3"></span></span></button></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><button class="btn btn-s">Маршрут</button><span style="font-size: 13px; color: var(--ink-muted)">Карты не открылись</span></div>
+
+<div style="display: flex; flex-direction: column; gap: 4px"><b>Текстовая</b><span class="lbl">btn-text</span></div>
+<div><button class="btn btn-t">Сбросить</button></div>
+<div><button class="btn btn-t" style="background: var(--line)">Сбросить</button></div>
+<div><button class="btn btn-t is-focus">Сбросить</button></div>
+<div><button class="btn btn-t" disabled="" style="color: var(--ink-muted); text-decoration: none">Сбросить</button></div>
+<div><span class="lbl">—</span></div>
+<div><span class="lbl">—</span></div>
+
+<div style="display: flex; flex-direction: column; gap: 4px"><b>Поверх карты</b><span class="lbl">btn-map · blur + плотный фон</span></div>
+<div><button class="rbtn" aria-label="Где я"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="7"></circle></svg></button></div>
+<div><button class="rbtn" aria-label="Где я" style="background: var(--line); transform: translateY(2px)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="7"></circle></svg></button></div>
+<div><button class="rbtn is-focus" aria-label="Где я"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="7"></circle></svg></button></div>
+<div><button class="rbtn" aria-label="Где я" disabled="" style="color: var(--ink-muted); border-color: var(--line)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="7"></circle></svg></button></div>
+<div><button class="rbtn" aria-label="Ищем тебя" aria-busy="true"><span class="dots" style="transform: scale(.7)"><span></span><span style="opacity: .6"></span><span style="opacity: .3"></span></span></button></div>
+<div style="display: flex; align-items: center; gap: 8px"><button class="rbtn" aria-label="Геолокация выключена"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2l20 20"></path><circle cx="12" cy="12" r="7"></circle></svg></button><span style="font-size: 13px; color: var(--ink-muted)">нет доступа</span></div>
+
+<div style="display: flex; flex-direction: column; gap: 4px"><b>Чипс-фильтр</b><span class="lbl">chip · 44 px</span></div>
+<div><button class="chip">Кофейня</button></div>
+<div><button class="chip" style="background: var(--line)">Кофейня</button></div>
+<div><button class="chip chip-on is-focus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Кофейня</button></div>
+<div><button class="chip" disabled="" style="color: var(--ink-muted); border-color: var(--line)">Кофейня · 0</button></div>
+<div><span class="lbl">—</span></div>
+<div><span class="lbl">—</span></div>
+
+<div style="display: flex; flex-direction: column; gap: 4px"><b>Мне подходит</b><span class="lbl">vote · счётчик моно</span></div>
+<div><button class="chip" style="gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path></svg>Мне подходит<span class="f-mono" style="font-size: 13px">2</span></button></div>
+<div><button class="chip" style="gap: 8px; background: var(--line)">Мне подходит<span class="f-mono" style="font-size: 13px">2</span></button></div>
+<div><button class="chip is-focus" style="gap: 8px; background: var(--marker); color: var(--on-marker); box-shadow: 0 3px 0 var(--ink)" aria-pressed="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Подходит<span class="f-mono" style="font-size: 13px">3</span></button></div>
+<div><button class="chip" disabled="" style="gap: 8px; color: var(--ink-muted); border-color: var(--line)">Голосование закрыто</button></div>
+<div><button class="chip" aria-busy="true" style="gap: 8px">Мне подходит<span class="dots" style="transform: scale(.6)"><span></span><span style="opacity: .6"></span><span style="opacity: .3"></span></span></button></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><button class="chip" style="gap: 8px">Мне подходит<span class="f-mono" style="font-size: 13px">2</span></button><span style="font-size: 13px; color: var(--ink-muted)">Голос не ушёл. Ещё раз?</span></div>
+</div>
+
+<div class="grid7" style="align-items: start">
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px"><b>Поле ссылки</b><span class="lbl">input-link</span></div>
+<div style="grid-column: span 2; display: flex; flex-direction: column; gap: 6px"><label for="l1" style="font-size: 14px; font-weight: 600">Ссылка на ролик</label><div class="field"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--ink-muted)"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><input id="l1" placeholder="Вставь ссылку на ролик"></div><span class="lbl">обычное · Instagram, TikTok, ВК, t.me, YouTube</span></div>
+<div style="grid-column: span 2; display: flex; flex-direction: column; gap: 6px"><label for="l2" style="font-size: 14px; font-weight: 600">Ссылка на ролик</label><div class="field is-focus" style="border-width: 2px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><input id="l2" value="vt.tiktok.com/ZS8kQ2pLm"><button class="btn-t" aria-label="Очистить" style="all: unset; cursor: pointer; display: flex; padding: 10px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></div><span class="lbl">фокус · заполнено</span></div>
+<div style="grid-column: span 2; display: flex; flex-direction: column; gap: 6px"><label for="l3" style="font-size: 14px; font-weight: 600">Ссылка на ролик</label><div class="field" style="border-width: 2.5px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><input id="l3" value="instagram.com/p/private" aria-invalid="true" aria-describedby="l3e"></div><div class="err" id="l3e"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4M12 16h.01"></path></svg><span>Ролик закрыт. Напиши название места, найдём сами.</span></div></div>
+</div>
+
+<div class="grid7" style="align-items: start">
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 12px"><b>Поиск по названию</b><span class="lbl">input-search · подсказки со 2-го символа</span></div>
+<div style="grid-column: span 3; display: flex; flex-direction: column; gap: 8px">
+<div class="field is-focus"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Название места" value="Жу"></div>
+<div style="border: 1.5px solid var(--ink); border-radius: 16px; background: var(--surface); overflow: hidden" role="listbox" aria-label="Подсказки">
+<div role="option" aria-selected="true" style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; background: var(--line)"><span style="font-weight: 600"><mark style="background: transparent; color: inherit; text-decoration: underline; text-decoration-color: var(--marker); text-decoration-thickness: 3px">Жу</mark>равли</span><span style="font-size: 14px; color: var(--ink-muted)">Бар · Покровка, 17 · Китай-город</span></div>
+<div role="option" aria-selected="false" style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-top: 1.5px solid var(--line)"><span style="font-weight: 600"><mark style="background: transparent; color: inherit; text-decoration: underline; text-decoration-color: var(--marker); text-decoration-thickness: 3px">Жу</mark>к и Пчела</span><span style="font-size: 14px; color: var(--ink-muted)">Кофейня · Мясницкая, 24 · Чистые пруды</span></div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 6px 8px 14px; border-top: 1.5px solid var(--line)"><span style="font-size: 14px; color: var(--ink-muted)">Не нашли место?</span><button class="btn btn-t" style="min-height: 44px">Сообщить</button></div>
+</div>
+</div>
+<div style="grid-column: span 3; display: flex; flex-direction: column; gap: 12px">
+<div class="field"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Название места" value="Ж"></div>
+<span class="lbl">1 символ — подсказок нет, только «Набери ещё букву»</span>
+<div class="field"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input aria-label="Название места" value="Жураввв"><span class="dots" style="transform: scale(.6); color: var(--ink-muted)"><span></span><span style="opacity: .6"></span><span style="opacity: .3"></span></span></div>
+<span class="lbl">загрузка — точки справа, список не прыгает</span>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="sec-h"><span class="sec-n">02</span><h2 class="sec-t">Фильтр «на вечер»</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+<div class="cell"><b>Выбор часа · hour-picker</b>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="chip">Сейчас</button><button class="chip f-mono" style="font-size: 14px">18:00</button><button class="chip chip-on f-mono" style="font-size: 14px" aria-pressed="true">19:00</button><button class="chip f-mono" style="font-size: 14px">20:00</button><button class="chip f-mono" style="font-size: 14px">21:00</button><button class="chip f-mono" style="font-size: 14px">22:00</button><button class="chip f-mono" style="font-size: 14px">23:00</button></div>
+<span class="lbl">только сегодня · шаг 1 час · прошедшие часы скрыты</span></div>
+<div class="cell"><b>Выбор чека · price-picker</b>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="chip">Любой</button><button class="chip">до <span class="f-mono" style="font-size: 14px">1000</span> ₽</button><button class="chip chip-on" aria-pressed="true">до <span class="f-mono" style="font-size: 14px">1500</span> ₽</button><button class="chip">до <span class="f-mono" style="font-size: 14px">2500</span> ₽</button><button class="chip">до <span class="f-mono" style="font-size: 14px">4000</span> ₽</button></div>
+<span class="lbl">средний чек на человека</span></div>
+<div class="cell"><b>Рядом с метро · переключатель</b>
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px"><span>До <span class="f-mono" style="font-size: 14px">1 км</span> от метро</span><span style="position: relative; width: 52px; height: 32px; border-radius: 999px; background: var(--ink); border: 1.5px solid var(--ink); box-sizing: border-box"><span style="position: absolute; right: 3px; top: 3px; width: 23px; height: 23px; border-radius: 50%; background: var(--marker)"></span></span></label>
+<div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1.5px solid var(--line)"><span>Найдено</span><span class="f-mono" style="font-size: 20px; font-weight: 600">5 из 7</span></div>
+<span class="lbl">счётчик обновляется сразу, без кнопки «Применить»</span></div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="sec-h"><span class="sec-n">03</span><h2 class="sec-t">Место: строка, кандидат, карточка</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">place-row · строка в списке</span>
+<div style="border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface)">
+<a href="#" style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; color: inherit; text-decoration: none"><div class="stk stk-coffee" style="transform: rotate(-4deg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><path d="M6 2v2M10 2v2M14 2v2"></path></svg></div><div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; font-size: 17px; line-height: 22px">Жук и Пчела</span><span style="font-size: 14px; color: var(--ink-muted)">Кофейня · Чистые пруды</span><span class="pill" style="background: #9ADBC5; align-self: flex-start">Открыто до <span class="f-mono" style="font-size: 12px">22:00</span></span></div><span class="f-mono" style="font-size: 13px; align-self: flex-start; padding-top: 2px">350 м</span></a>
+<a href="#" style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; color: inherit; text-decoration: none; border-top: 1.5px solid var(--line)"><div style="position: relative"><div class="stk stk-bar" style="transform: rotate(4deg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 22h8"></path><path d="M7 10h10"></path><path d="M12 15v7"></path><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"></path></svg></div><svg viewBox="0 0 64 40" width="58" height="36" aria-hidden="true" style="position: absolute; left: -9px; top: 2px"><path d="M4 30 C 20 24 40 16 60 8" style="fill: none; stroke: #FFFDF8; stroke-width: 8; stroke-linecap: round"></path><path d="M4 30 C 20 24 40 16 60 8" style="fill: none; stroke: #17140F; stroke-width: 5; stroke-linecap: round"></path></svg></div><div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 600; font-size: 17px; line-height: 22px">Журавли</span><span style="font-size: 14px; color: var(--ink-muted)">Бар · Китай-город · <b style="color: var(--ink)">был здесь</b></span><span class="pill" style="background: transparent; color: var(--ink); border: 1.5px dashed var(--ink); align-self: flex-start">Часы не уточнены</span></div><span class="f-mono" style="font-size: 13px; align-self: flex-start; padding-top: 2px">1,2 км</span></a>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">candidate-card · кандидат из ролика</span>
+<div style="border: 1.5px solid var(--ink); border-radius: 16px; background: var(--surface); padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: flex-start"><div class="stk stk-rest" style="transform: rotate(-2deg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg></div><div style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 700; font-size: 18px; line-height: 24px">Северяне</span><span style="font-size: 14px; color: var(--ink-muted); line-height: 20px">Ресторан · Большая Никитская, 12<br>м. Охотный Ряд · <span class="f-mono" style="font-size: 12px">450 м</span></span></div><span class="f-mono" style="margin-left: auto; font-size: 12px; color: var(--ink-muted)">1/3</span></div>
+<div style="display: flex; gap: 8px"><button class="btn btn-p" style="flex: 1">Да, сохранить</button><button class="btn btn-s">Не то</button></div>
+</div>
+<div style="border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); padding: 16px; display: flex; gap: 12px; align-items: center"><div class="stk stk-coffee"></div><div style="flex: 1; display: flex; flex-direction: column; gap: 2px"><b>Жук и Пчела</b><span style="font-size: 14px; color: var(--ink-muted)">Уже в твоих местах</span></div><button class="btn btn-s" style="min-height: 44px; padding: 0 14px">Открыть</button></div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">source-video + note · блоки карточки</span>
+<div style="position: relative; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--surface); padding: 20px 16px 16px; display: flex; gap: 12px; align-items: center; transform: rotate(-1deg); margin-top: 12px">
+<div class="tape" style="left: 24px; top: -13px; transform: rotate(-4deg)"></div>
+<div style="width: 44px; height: 56px; border-radius: 8px; background: linear-gradient(160deg, #FFD23F, #FF4A1C 70%, #C9B6FF); flex: none; display: flex; align-items: center; justify-content: center; border: 1.5px solid #17140F"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" style="fill: #17140F"></path></svg></div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; color: var(--ink-muted)">Исходный ролик · TikTok</span><a href="#" style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">vt.tiktok.com/ZS8kQ2pLm</a></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 8px; background: var(--surface); border: 1.5px dashed var(--line)">
+<span style="font-size: 13px; color: var(--ink-muted)">Моя заметка</span>
+<span class="f-hand" style="font-size: 26px; line-height: 1.1">взять раф с халвой, сесть у окна</span>
+<span class="f-mono" style="font-size: 11px; color: var(--ink-muted); align-self: flex-end">32/280</span>
+</div>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="sec-h"><span class="sec-n">04</span><h2 class="sec-t">Шторка, навигация, друзья</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, 160px) 1fr 1fr; gap: 24px; align-items: end">
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="position: relative; height: 300px; border-radius: 16px; border: 1.5px solid var(--line); overflow: hidden; background: var(--line)"><div style="position: absolute; left: 0; right: 0; bottom: 0; height: 96px; background: var(--surface); border-top: 1.5px solid var(--ink); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 8px"><span style="width: 36px; height: 4px; border-radius: 4px; background: var(--ink-muted)"></span><span style="font-size: 12px; font-weight: 600">7 мест · был в <span class="f-mono">2</span></span></div></div><span class="lbl">sheet-peek · 96</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="position: relative; height: 300px; border-radius: 16px; border: 1.5px solid var(--line); overflow: hidden; background: var(--line)"><div style="position: absolute; left: 0; right: 0; bottom: 0; height: 52%; background: var(--surface); border-top: 1.5px solid var(--ink); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 8px"><span style="width: 36px; height: 4px; border-radius: 4px; background: var(--ink-muted)"></span><span style="width: 80%; height: 10px; border-radius: 4px; background: var(--line)"></span><span style="width: 80%; height: 10px; border-radius: 4px; background: var(--line)"></span></div></div><span class="lbl">sheet-half · 50%</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="position: relative; height: 300px; border-radius: 16px; border: 1.5px solid var(--line); overflow: hidden; background: var(--line)"><div style="position: absolute; left: 0; right: 0; bottom: 0; top: 24px; background: var(--surface); border-top: 1.5px solid var(--ink); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 8px"><span style="width: 36px; height: 4px; border-radius: 4px; background: var(--ink-muted)"></span><span style="width: 80%; height: 10px; border-radius: 4px; background: var(--line)"></span><span style="width: 80%; height: 10px; border-radius: 4px; background: var(--line)"></span><span style="width: 80%; height: 10px; border-radius: 4px; background: var(--line)"></span></div></div><span class="lbl">sheet-full · −24 сверху</span></div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">bottom-nav · 3 пункта, центр — действие</span>
+<nav aria-label="Основная" style="display: flex; align-items: center; justify-content: space-around; height: 72px; border-radius: 24px; background: var(--surface); border: 1.5px solid var(--ink)">
+<a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--ink); text-decoration: none; font-size: 12px; font-weight: 600; min-width: 64px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>Места<span style="width: 20px; height: 3px; border-radius: 2px; background: var(--marker)"></span></a>
+<button class="btn btn-p" style="width: 56px; height: 56px; padding: 0" aria-label="Добавить место"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--ink-muted); text-decoration: none; font-size: 12px; font-weight: 600; min-width: 64px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4a1 1 0 0 1 1-1h12l-3 5 3 5H5"></path></svg>На вечер <span class="f-mono" style="font-size: 11px">3</span><span style="width: 20px; height: 3px"></span></a>
+</nav>
+<span class="lbl">theme-switch</span>
+<div role="radiogroup" aria-label="Тема" style="display: flex; padding: 4px; border-radius: 999px; border: 1.5px solid var(--ink); background: var(--surface); align-self: flex-start"><button role="radio" aria-checked="true" class="chip" style="border-color: transparent; background: var(--ink); color: var(--bg)">Авто · по закату</button><button role="radio" aria-checked="false" class="chip" style="border-color: transparent; background: transparent">День</button><button role="radio" aria-checked="false" class="chip" style="border-color: transparent; background: transparent">Ночь</button></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="lbl">avatars · инициалы стопкой</span>
+<div style="display: flex; align-items: center; padding-left: 8px"><span class="av" style="background: #FFD23F">АК</span><span class="av" style="background: #9ADBC5">МЛ</span><span class="av" style="background: #C9B6FF">Д</span><span class="av" style="background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink)"><span class="f-mono" style="font-size: 11px">+2</span></span><span style="margin-left: 10px; font-size: 14px"><span class="f-mono" style="font-size: 13px">5</span> подходит</span></div>
+<span class="lbl">цвет аватара = хэш имени по 3 цветам наклеек (без томата)</span>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 20px">
+<div class="sec-h"><span class="sec-n">05</span><h2 class="sec-t">Обратная связь</h2></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">toast · отмена 5 с</span>
+<div role="status" style="display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-radius: 16px; background: var(--ink); color: var(--bg)"><span style="flex: 1; font-size: 15px">Место удалено</span><span class="f-mono" style="font-size: 13px; opacity: .7">5</span><button class="btn" style="min-height: 44px; background: transparent; color: var(--bg); border-color: var(--bg)">Отменить</button></div>
+<div role="status" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--ink); color: var(--bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span style="font-size: 15px">Ссылка скопирована</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">error · плашка</span>
+<div class="err" role="alert"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4M12 16h.01"></path></svg><div style="display: flex; flex-direction: column; gap: 8px"><b>Не узнали место</b><span>Напиши название, найдём сами.</span><button class="btn btn-s" style="min-height: 44px; align-self: flex-start">Искать по названию</button></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">offline · плашка</span>
+<div role="status" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; background: var(--surface); border: 1.5px dashed var(--ink); font-size: 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2l20 20"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path><path d="M5 12.9a10 10 0 0 1 5.2-2.8"></path><path d="M19 12.9a10 10 0 0 0-2.3-1.7"></path><path d="M12 20h.01"></path></svg><b>Нет сети.</b><span style="color: var(--ink-muted)">Показываем сохранённое</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">empty · пустое состояние</span>
+<div style="position: relative; display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line)"><span class="f-display" style="font-size: 22px; line-height: 1.15">Пока пусто</span><span style="font-size: 15px; line-height: 22px">Кинь ссылку на ролик, и место появится здесь.</span><button class="btn btn-p" style="align-self: flex-start; margin-top: 8px">Вставить ссылку</button></div>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["day","night"],"default":"day"},"$preview":{"width":1440,"height":2900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { theme: this.props.theme ?? 'day' };
+  }
+}
+</script>
+</body>
+</html>

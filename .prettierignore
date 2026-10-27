@@ -3,3 +3,4 @@ dist
 coverage
 apps/api
 apps/web/public/mockServiceWorker.js
+docs/design/zin

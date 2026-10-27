@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Основы: токены</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&amp;family=Dela+Gothic+One&amp;family=Martian+Mono:wght@400;500;600&amp;family=Onest:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.t-day{--bg:#F4EFE6;--surface:#FFFDF8;--ink:#17140F;--ink-muted:#6B6358;--line:rgba(23,20,15,.12);--marker:#FF4A1C;--on-marker:#17140F;--link:#D63A0E;--note-bg:#FFF1B8;--map-land:#EEE7D9;--map-road:rgba(23,20,15,.17);--map-ring:rgba(23,20,15,.42);--map-water:#D9D0EE;--map-park:#D3EADB;--map-label:rgba(23,20,15,.55)}
+.t-night{--bg:#16130F;--surface:#221E18;--ink:#F2ECE1;--ink-muted:#A79F92;--line:rgba(242,236,225,.14);--marker:#FF6A3D;--on-marker:#16130F;--link:#FF6A3D;--note-bg:#3D3412;--map-land:#1D1914;--map-road:rgba(242,236,225,.15);--map-ring:rgba(242,236,225,.38);--map-water:#2A2638;--map-park:#1E2A23;--map-label:rgba(242,236,225,.5)}
+.t-day,.t-night{--st-coffee:#FFD23F;--st-cafe:#9ADBC5;--st-rest:#C9B6FF;--st-bar:#FF4A1C;--st-ink:#17140F;background:var(--bg);color:var(--ink);font-family:Onest,system-ui,sans-serif}
+a{color:var(--link)}a:hover{color:var(--ink)}
+.f-display{font-family:'Dela Gothic One',Onest,sans-serif;font-weight:400}
+.f-hand{font-family:Caveat,cursive;font-weight:600}
+.f-mono{font-family:'Martian Mono',ui-monospace,monospace}
+.grain{background-image:radial-gradient(rgba(23,20,15,.06) .7px,transparent .9px);background-size:4px 4px}
+.sec{display:flex;flex-direction:column;gap:24px}
+.sec-h{display:flex;align-items:baseline;gap:16px;border-bottom:1.5px solid var(--ink);padding-bottom:12px}
+.sec-n{font-family:'Martian Mono',monospace;font-size:14px;color:var(--ink-muted)}
+.sec-t{font-family:'Dela Gothic One',sans-serif;font-size:32px;line-height:1.1;margin:0}
+.lbl{font-family:'Martian Mono',monospace;font-size:12px;line-height:16px;color:var(--ink-muted)}
+.sw{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line)}
+.sw-c{height:64px;border-radius:8px;border:1.5px solid var(--line)}
+.sw-n{font:600 14px/20px Onest,sans-serif}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0 10px;border-radius:999px;font:500 14px/1 Onest,sans-serif;color:#17140F}
+.tbl{display:grid;grid-template-columns:140px 120px 1fr;border-top:1.5px solid var(--line)}
+.tbl > div{padding:12px 8px;border-bottom:1.5px solid var(--line);font-size:14px;line-height:20px}
+</style>
+</helmet>
+<div class="t-day grain" style="width: 1440px; height: 2560px; box-sizing: border-box; padding: 64px; display: flex; flex-direction: column; gap: 64px">
+
+<header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div class="lbl">ДИЗАЙН-СИСТЕМА «ЗИН» · v0.1 · 26.10.2026</div>
+<h1 class="f-display" style="margin: 0; font-size: 88px; line-height: 1">Где Хайп?</h1>
+<p style="margin: 0; font-size: 20px; line-height: 28px; max-width: 760px">Личный городской блокнот. Тёплая бумага, жирная кириллица, один яркий маркер и цветные наклейки. Строгая сетка 4 px и моноширинные цифры держат «ручной» стиль в рамках.</p>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<span class="f-hand" style="font-size: 32px; color: var(--ink); transform: rotate(-3deg)">свой, живой, по делу</span>
+</div>
+</header>
+
+<section class="sec">
+<div class="sec-h"><span class="sec-n">01</span><h2 class="sec-t">Цвет</h2><span class="lbl" style="margin-left: auto">kebab-case · CSS-переменные в @theme Tailwind 4 · JSON</span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+
+<div class="t-day" style="border: 1.5px solid #17140F; border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span class="f-display" style="font-size: 24px">День</span><span class="lbl">фон — бумага</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<div class="sw"><div class="sw-c" style="background: #F4EFE6"></div><span class="sw-n">bg</span><span class="lbl">#F4EFE6</span></div>
+<div class="sw"><div class="sw-c" style="background: #FFFDF8"></div><span class="sw-n">surface</span><span class="lbl">#FFFDF8</span></div>
+<div class="sw"><div class="sw-c" style="background: #17140F"></div><span class="sw-n">ink</span><span class="lbl">#17140F · 15,9:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #6B6358"></div><span class="sw-n">ink-muted</span><span class="lbl">#6B6358 · 5,1:1</span></div>
+<div class="sw"><div class="sw-c" style="background: rgba(23,20,15,.12)"></div><span class="sw-n">line</span><span class="lbl">ink 12%</span></div>
+<div class="sw"><div class="sw-c" style="background: #FF4A1C; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #17140F">Аа</div><span class="sw-n">marker / on-marker</span><span class="lbl">#FF4A1C / #17140F · 5,5:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #F4EFE6; display: flex; align-items: center; justify-content: center"><span style="color: #D63A0E; text-decoration: underline; font-weight: 600">ссылка</span></div><span class="sw-n">link</span><span class="lbl">#D63A0E · 5,4:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #FFF1B8"></div><span class="sw-n">note-bg</span><span class="lbl">#FFF1B8 · ошибки</span></div>
+</div>
+</div>
+
+<div class="t-night" style="border: 1.5px solid #17140F; border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span class="f-display" style="font-size: 24px">Ночь</span><span class="lbl">тёплый чёрный</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<div class="sw"><div class="sw-c" style="background: #16130F"></div><span class="sw-n">bg</span><span class="lbl">#16130F</span></div>
+<div class="sw"><div class="sw-c" style="background: #221E18"></div><span class="sw-n">surface</span><span class="lbl">#221E18</span></div>
+<div class="sw"><div class="sw-c" style="background: #F2ECE1"></div><span class="sw-n">ink</span><span class="lbl">#F2ECE1 · 15,7:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #A79F92"></div><span class="sw-n">ink-muted</span><span class="lbl">#A79F92 · 7,1:1</span></div>
+<div class="sw"><div class="sw-c" style="background: rgba(242,236,225,.14)"></div><span class="sw-n">line</span><span class="lbl">ink 14%</span></div>
+<div class="sw"><div class="sw-c" style="background: #FF6A3D; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #16130F">Аа</div><span class="sw-n">marker / on-marker</span><span class="lbl">#FF6A3D / #16130F · 6,5:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #16130F; display: flex; align-items: center; justify-content: center"><span style="color: #FF6A3D; text-decoration: underline; font-weight: 600">ссылка</span></div><span class="sw-n">link</span><span class="lbl">#FF6A3D · 6,5:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #3D3412"></div><span class="sw-n">note-bg</span><span class="lbl">#3D3412 · ошибки</span></div>
+</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="sw-n">Наклейки по типу места · текст всегда #17140F, в обеих темах</span>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<div class="sw"><div class="sw-c" style="background: #FFD23F"></div><span class="sw-n">st-coffee · Кофейня</span><span class="lbl">#FFD23F · 12,7:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #9ADBC5"></div><span class="sw-n">st-cafe · Кафе</span><span class="lbl">#9ADBC5 · 11,6:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #C9B6FF"></div><span class="sw-n">st-rest · Ресторан</span><span class="lbl">#C9B6FF · 10,2:1</span></div>
+<div class="sw"><div class="sw-c" style="background: #FF4A1C"></div><span class="sw-n">st-bar · Бар</span><span class="lbl">#FF4A1C · 5,5:1</span></div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span class="sw-n">Статусы часов · цвет никогда не один: всегда текст и иконка</span>
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line)">
+<div style="display: flex; align-items: center; gap: 16px"><span class="pill" style="background: #9ADBC5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Открыто до <span class="f-mono" style="font-size: 13px">23:00</span></span><span class="lbl">status-open · мята</span></div>
+<div style="display: flex; align-items: center; gap: 16px"><span class="pill" style="background: #E6DFD2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path></svg>Закрыто, откроется в <span class="f-mono" style="font-size: 13px">12:00</span></span><span class="lbl">status-closed · нейтральный</span></div>
+<div style="display: flex; align-items: center; gap: 16px"><span class="pill" style="background: transparent; color: var(--ink); border: 1.5px dashed var(--ink)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5M12 17h.01"></path></svg>Часы не уточнены</span><span class="lbl">status-unknown · пунктир</span></div>
+<div style="display: flex; align-items: center; gap: 16px; padding: 12px; border-radius: 8px; background: #FFF1B8; color: #17140F"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4M12 16h.01"></path></svg><span style="font-size: 14px; font-weight: 500">Ошибка: ink + иконка + текст на note-bg. Красный не используем — он занят маркером.</span></div>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 12px; align-items: center"><span class="lbl">РЕЗЕРВ (только токены, в MVP не рисуем):</span><span class="pill" style="border: 1.5px solid var(--line); color: var(--ink-muted)">reserve-quiet · тихо вечером</span><span class="pill" style="border: 1.5px solid var(--line); color: var(--ink-muted)">reserve-loud · громко вечером</span><span class="pill" style="border: 1.5px solid var(--line); color: var(--ink-muted)">reserve-buzz · обсуждают сейчас</span></div>
+</section>
+
+<section class="sec">
+<div class="sec-h"><span class="sec-n">02</span><h2 class="sec-t">Типографика</h2><span class="lbl" style="margin-left: auto">Google Fonts · woff2 локально · latin + cyrillic</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+<div class="sw" style="padding: 20px; gap: 12px"><span class="lbl">font-display</span><span class="f-display" style="font-size: 44px; line-height: 1.05">Куда в пятницу?</span><span style="font-size: 14px; line-height: 20px">Dela Gothic One. Заголовки, логотип, фразы на карточке для друзей. От 20 px, коротко.</span></div>
+<div class="sw" style="padding: 20px; gap: 12px"><span class="lbl">font-ui</span><span style="font-size: 32px; line-height: 1.15; font-weight: 600">Мои места рядом с метро</span><span style="font-size: 14px; line-height: 20px">Onest 400/500/600/700. Весь интерфейсный текст. База 16 px.</span></div>
+<div class="sw" style="padding: 20px; gap: 12px"><span class="lbl">font-hand</span><span class="f-hand" style="font-size: 40px; line-height: 1">сходил!</span><span style="font-size: 14px; line-height: 20px">Caveat 600. Одна рукописная фраза на экран. Никогда в кнопках и важном тексте.</span></div>
+<div class="sw" style="padding: 20px; gap: 12px"><span class="lbl">font-mono</span><span class="f-mono" style="font-size: 28px; line-height: 1.2; font-weight: 500">19:00 · 1,2 км · 2 из 7</span><span style="font-size: 14px; line-height: 20px">Martian Mono. Все цифры: время, расстояние, чек, голоса.</span></div>
+</div>
+<div style="display: grid; grid-template-columns: 160px 120px 120px 1fr; border-top: 1.5px solid var(--ink)">
+<div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">ТОКЕН</div><div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">РАЗМЕР</div><div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">LEADING</div><div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">ОБРАЗЕЦ</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-xs</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">12</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">16</div><div style="font-size: 12px; line-height: 16px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Подписи, метки на карте. Только 500+ и только ink-muted и темнее.</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-sm</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">14</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">20</div><div style="font-size: 14px; line-height: 20px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Адрес, метро, вторичные строки</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-base</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">16</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">24</div><div style="font-size: 16px; line-height: 24px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Основной текст и кнопки</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-lg</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">20</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">28</div><div style="font-size: 20px; line-height: 28px; font-weight: 600; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Название места в списке</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-xl</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">24</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">30</div><div class="f-display" style="font-size: 24px; line-height: 30px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Заголовок экрана</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-2xl</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">32</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">36</div><div class="f-display" style="font-size: 32px; line-height: 36px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Карточка места</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">text-3xl</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">44</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">48</div><div class="f-display" style="font-size: 44px; line-height: 48px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Вечер настал</div>
+</div>
+</section>
+
+<section class="sec">
+<div class="sec-h"><span class="sec-n">03</span><h2 class="sec-t">Сетка, радиусы, глубина</h2><span class="lbl" style="margin-left: auto">шаг 4 px · поля 16 px · экраны 360 → 390 → 430</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+<div class="sw" style="padding: 20px; gap: 16px">
+<span class="sw-n">Отступы · space-*</span>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-1</span><div style="width: 4px; height: 16px; background: #FF4A1C"></div><span class="lbl">4</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-2</span><div style="width: 8px; height: 16px; background: #FF4A1C"></div><span class="lbl">8</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-3</span><div style="width: 12px; height: 16px; background: #FF4A1C"></div><span class="lbl">12</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-4</span><div style="width: 16px; height: 16px; background: #FF4A1C"></div><span class="lbl">16 · боковые поля</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-6</span><div style="width: 24px; height: 16px; background: #FF4A1C"></div><span class="lbl">24</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-8</span><div style="width: 32px; height: 16px; background: #FF4A1C"></div><span class="lbl">32</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">space-12</span><div style="width: 48px; height: 16px; background: #FF4A1C"></div><span class="lbl">48</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span class="f-mono" style="font-size: 12px; width: 72px">tap-min</span><div style="width: 44px; height: 44px; border: 1.5px dashed var(--ink); border-radius: 8px"></div><span class="lbl">44×44 цель касания</span></div>
+</div>
+</div>
+<div class="sw" style="padding: 20px; gap: 16px">
+<span class="sw-n">Радиусы · radius-*</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="height: 64px; border: 1.5px solid var(--ink); border-radius: 8px"></div><span class="lbl">radius-sm · 8 · мелочь</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="height: 64px; border: 1.5px solid var(--ink); border-radius: 16px"></div><span class="lbl">radius-md · 16 · карточки</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="height: 64px; border: 1.5px solid var(--ink); border-radius: 24px 24px 0 0; border-bottom: 0"></div><span class="lbl">radius-lg · 24 · шторка</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><div style="height: 44px; margin: 10px 0; border: 1.5px solid var(--ink); border-radius: 999px"></div><span class="lbl">radius-pill · 999 · чипсы, кнопки</span></div>
+</div>
+</div>
+<div class="sw" style="padding: 20px; gap: 16px">
+<span class="sw-n">Глубина «бумажно»</span>
+<div style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: center; gap: 16px"><div style="width: 96px; height: 56px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px"></div><span style="font-size: 14px; line-height: 20px"><b>flat</b> · обычная карточка, без тени</span></div>
+<div style="display: flex; align-items: center; gap: 16px"><div style="width: 96px; height: 56px; background: #FF4A1C; border: 1.5px solid #17140F; border-radius: 999px; box-shadow: 0 3px 0 #17140F"></div><span style="font-size: 14px; line-height: 20px"><b>raised</b> · обводка 1,5 ink + тень 0/3/0 ink. Главная кнопка, наклейки</span></div>
+<div style="display: flex; align-items: center; gap: 16px"><div style="width: 96px; height: 56px; background: #FF4A1C; border: 1.5px solid #17140F; border-radius: 999px; box-shadow: 0 0 0 #17140F; transform: translateY(3px)"></div><span style="font-size: 14px; line-height: 20px"><b>pressed</b> · тень 0, сдвиг на 3 px вниз</span></div>
+<div style="display: flex; align-items: center; gap: 16px"><div style="width: 96px; height: 56px; border-radius: 16px; border: 1.5px solid var(--line); background-color: #F4EFE6" class="grain"></div><span style="font-size: 14px; line-height: 20px"><b>grain</b> · зерно бумаги 6%, отключается флагом</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="sec">
+<div class="sec-h"><span class="sec-n">04</span><h2 class="sec-t">Движение</h2><span class="lbl" style="margin-left: auto">prefers-reduced-motion → только смена прозрачности, 150 мс</span></div>
+<div style="display: grid; grid-template-columns: 200px 140px 260px 1fr; border-top: 1.5px solid var(--ink)">
+<div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">ТОКЕН</div><div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">ДЛИТ.</div><div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">КРИВАЯ</div><div class="lbl" style="padding: 10px 0; border-bottom: 1.5px solid var(--line)">ГДЕ</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-fast</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">150ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">ease-out</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Нажатие, фокус, чипсы, тост</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-base</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">200ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">cubic-bezier(.2,0,0,1)</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Шторка, панели, переходы экранов</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-stick</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">350ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">cubic-bezier(.34,1.56,.64,1)</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Наклейка «прилипает» к карте + vibrate(12)</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-envelope</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">500ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">cubic-bezier(.5,0,.75,0)</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">«Отправить»: карточка складывается в конверт и улетает</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-strike</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">400ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">stroke-dashoffset, ease-in-out</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">«Я здесь»: маркер зачёркивает, конфетти один раз</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-theme</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">1200ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">ease-in-out</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Смена день → ночь по закату в Москве</div>
+<div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">view-transition</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">250ms</div><div class="f-mono" style="font-size: 13px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">motion-base</div><div style="font-size: 14px; padding: 12px 0; border-bottom: 1.5px solid var(--line)">Метка → карточка места, view-transition-name: place-{id}</div>
+</div>
+</section>
+
+<section class="sec">
+<div class="sec-h"><span class="sec-n">05</span><h2 class="sec-t">Карта и смена темы</h2><span class="lbl" style="margin-left: auto">MapLibre + OpenFreeMap · свой стиль слоёв</span></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1.1fr; gap: 32px">
+
+<div class="t-day" style="position: relative; height: 420px; border-radius: 24px; overflow: hidden; border: 1.5px solid #17140F">
+<svg viewBox="0 0 360 420" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position: absolute; inset: 0"><rect width="360" height="420" style="fill: var(--map-land)"></rect><path d="M-10 318 C 60 290 110 352 170 322 S 262 244 302 292 S 342 372 380 352" style="fill: none; stroke: var(--map-water); stroke-width: 20"></path><path d="M70 96 q34 -22 66 2 q8 30 -24 40 q-44 2 -42 -42z" style="fill: var(--map-park)"></path><path d="M236 250 q30 -10 46 12 q-6 24 -34 22 q-20 -8 -12 -34z" style="fill: var(--map-park)"></path><g style="fill: none; stroke: var(--map-road); stroke-width: 1.5"><path d="M180 0 L 176 420"></path><path d="M0 170 L 360 196"></path><path d="M40 20 L 300 400"></path><path d="M330 30 L 40 390"></path><path d="M0 250 L 360 120"></path><path d="M110 0 L 120 420"></path><path d="M260 0 L 250 420"></path></g><path d="M180 44 C 288 44 332 130 328 216 C 324 312 252 374 178 372 C 94 370 36 306 38 210 C 40 116 92 44 180 44 Z" style="fill: none; stroke: var(--map-ring); stroke-width: 3"></path></svg>
+<span style="position: absolute; left: 134px; top: 186px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">КИТАЙ-ГОРОД</span>
+<span style="position: absolute; left: 52px; top: 210px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">АРБАТ</span>
+<span style="position: absolute; left: 70px; top: 76px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">ПАТРИКИ</span>
+<span style="position: absolute; left: 196px; top: 288px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">ЗАМОСКВОРЕЧЬЕ</span>
+<span style="position: absolute; left: 230px; top: 104px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">ЧИСТЫЕ ПРУДЫ</span>
+<span class="f-mono" style="position: absolute; left: 16px; bottom: 16px; font-size: 12px; background: var(--surface); color: var(--ink); padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--line)">день · map-*</span>
+</div>
+
+<div class="t-night" style="position: relative; height: 420px; border-radius: 24px; overflow: hidden; border: 1.5px solid #17140F">
+<svg viewBox="0 0 360 420" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position: absolute; inset: 0"><rect width="360" height="420" style="fill: var(--map-land)"></rect><path d="M-10 318 C 60 290 110 352 170 322 S 262 244 302 292 S 342 372 380 352" style="fill: none; stroke: var(--map-water); stroke-width: 20"></path><path d="M70 96 q34 -22 66 2 q8 30 -24 40 q-44 2 -42 -42z" style="fill: var(--map-park)"></path><path d="M236 250 q30 -10 46 12 q-6 24 -34 22 q-20 -8 -12 -34z" style="fill: var(--map-park)"></path><g style="fill: none; stroke: var(--map-road); stroke-width: 1.5"><path d="M180 0 L 176 420"></path><path d="M0 170 L 360 196"></path><path d="M40 20 L 300 400"></path><path d="M330 30 L 40 390"></path><path d="M0 250 L 360 120"></path><path d="M110 0 L 120 420"></path><path d="M260 0 L 250 420"></path></g><path d="M180 44 C 288 44 332 130 328 216 C 324 312 252 374 178 372 C 94 370 36 306 38 210 C 40 116 92 44 180 44 Z" style="fill: none; stroke: var(--map-ring); stroke-width: 3"></path></svg>
+<span style="position: absolute; left: 134px; top: 186px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">КИТАЙ-ГОРОД</span>
+<span style="position: absolute; left: 52px; top: 210px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">АРБАТ</span>
+<span style="position: absolute; left: 70px; top: 76px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">ПАТРИКИ</span>
+<span style="position: absolute; left: 196px; top: 288px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">ЗАМОСКВОРЕЧЬЕ</span>
+<span style="position: absolute; left: 230px; top: 104px; font: 600 12px/1 Onest; letter-spacing: .08em; color: var(--map-label)">ЧИСТЫЕ ПРУДЫ</span>
+<span class="f-mono" style="position: absolute; left: 16px; bottom: 16px; font-size: 12px; background: var(--surface); color: var(--ink); padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--line)">ночь · map-*</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: grid; grid-template-columns: 150px 1fr 1fr; border-top: 1.5px solid var(--ink); font-size: 13px">
+<div class="lbl" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">СЛОЙ</div><div class="lbl" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ДЕНЬ</div><div class="lbl" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">НОЧЬ</div>
+<div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">map-land</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">#EEE7D9</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">#1D1914</div>
+<div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">map-road</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ink 17%</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ink 15%</div>
+<div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">map-ring</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ink 42% · 3px</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ink 38% · 3px</div>
+<div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">map-water</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">#D9D0EE</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">#2A2638</div>
+<div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">map-park</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">#D3EADB</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">#1E2A23</div>
+<div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">map-label</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ink 55% · Onest 600</div><div class="f-mono" style="padding: 8px 0; border-bottom: 1.5px solid var(--line)">ink 50% · Onest 600</div>
+</div>
+<div style="position: relative; height: 150px; border-radius: 16px; overflow: hidden; border: 1.5px solid #17140F; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))">
+<div class="t-day" style="padding: 16px; display: flex; flex-direction: column; justify-content: space-between"><span class="f-mono" style="font-size: 12px">18:42</span><span style="font-size: 14px; color: var(--ink-muted)">Закат в Москве — 16:51</span></div>
+<div class="t-night" style="padding: 16px; display: flex; flex-direction: column; justify-content: space-between"><span class="f-mono" style="font-size: 12px">16:52</span><span class="f-display" style="font-size: 24px; line-height: 1.1">Вечер настал</span></div>
+<div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 60px; margin-left: -30px; background: linear-gradient(90deg, #F4EFE6, #16130F)"></div>
+</div>
+<span style="font-size: 14px; line-height: 20px; color: var(--ink-muted)">Тема переключается по закату: мягкий переход motion-theme. Надпись «Вечер настал» один раз за вечер, на 2,5 с, потом исчезает. Вручную — в настройках: Авто · День · Ночь.</span>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
