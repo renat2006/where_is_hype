@@ -5,8 +5,11 @@ import { createRoot } from 'react-dom/client';
 
 import { enableMocks } from '@/shared/api';
 import { env } from '@/shared/config';
+import { initTheme } from '@/shared/lib/theme';
 
 import { App } from './app';
+
+initTheme();
 
 const container = document.getElementById('root');
 

@@ -1,25 +1,165 @@
+@import '@fontsource/onest/latin-400.css';
+@import '@fontsource/onest/cyrillic-400.css';
+@import '@fontsource/onest/latin-500.css';
+@import '@fontsource/onest/cyrillic-500.css';
+@import '@fontsource/onest/latin-600.css';
+@import '@fontsource/onest/cyrillic-600.css';
+@import '@fontsource/onest/latin-700.css';
+@import '@fontsource/onest/cyrillic-700.css';
+@import '@fontsource/dela-gothic-one/latin-400.css';
+@import '@fontsource/dela-gothic-one/cyrillic-400.css';
+@import '@fontsource/caveat/latin-600.css';
+@import '@fontsource/caveat/cyrillic-600.css';
+@import '@fontsource/martian-mono/latin-400.css';
+@import '@fontsource/martian-mono/cyrillic-400.css';
+@import '@fontsource/martian-mono/latin-500.css';
+@import '@fontsource/martian-mono/cyrillic-500.css';
+@import '@fontsource/martian-mono/latin-600.css';
+@import '@fontsource/martian-mono/cyrillic-600.css';
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #0b0b0f;
-  --color-surface: #17171d;
-  --color-text: #f5f5f7;
-  --color-muted: #9a9aa6;
-  --color-hot: #ff4b2b;
-  --color-grow: #ff9f1c;
-  --color-stable: #4cc3a5;
-  --color-quiet: #6c8cff;
+  --color-bg: #f4efe6;
+  --color-surface: #fffdf8;
+  --color-ink: #17140f;
+  --color-ink-muted: #6b6358;
+  --color-muted: var(--color-ink-muted);
+  --color-line: rgba(23, 20, 15, 0.12);
+  --color-marker: #ff4a1c;
+  --color-on-marker: #17140f;
+  --color-link: #d63a0e;
+  --color-note-bg: #fff1b8;
+  --color-tape: rgba(226, 212, 178, 0.85);
+  --color-glass: rgba(255, 253, 248, 0.82);
+  --color-scrim: rgba(23, 20, 15, 0.36);
 
-  --font-sans: 'Manrope', system-ui, sans-serif;
-  --font-display: 'Unbounded', 'Manrope', system-ui, sans-serif;
+  --color-st-coffee: #ffd23f;
+  --color-st-cafe: #9adbc5;
+  --color-st-rest: #c9b6ff;
+  --color-st-bar: #ff4a1c;
+  --color-st-ink: #17140f;
+
+  --color-status-open: #9adbc5;
+  --color-status-closed: #e6dfd2;
+  --color-status-unknown: transparent;
+  --color-closed: #e6dfd2;
+
+  --color-map-land: #eee7d9;
+  --color-map-road: rgba(23, 20, 15, 0.17);
+  --color-map-ring: rgba(23, 20, 15, 0.42);
+  --color-map-water: #d9d0ee;
+  --color-map-park: #d3eadb;
+  --color-map-label: rgba(23, 20, 15, 0.55);
+
+  --color-reserve-quiet: #d3eadb;
+  --color-reserve-loud: #ffd23f;
+  --color-reserve-buzz: #c9b6ff;
+
+  --font-display: 'Dela Gothic One', 'Onest', system-ui, sans-serif;
+  --font-ui: 'Onest', system-ui, sans-serif;
+  --font-sans: 'Onest', system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
+  --font-mono: 'Martian Mono', ui-monospace, monospace;
+
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 20px;
+  --text-lg--line-height: 28px;
+  --text-xl: 24px;
+  --text-xl--line-height: 30px;
+  --text-2xl: 32px;
+  --text-2xl--line-height: 36px;
+  --text-3xl: 44px;
+  --text-3xl--line-height: 48px;
+
+  --spacing: 4px;
+  --spacing-tap-min: 44px;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-raised: 0 3px 0 var(--color-ink);
+
+  --ease-base: cubic-bezier(0.2, 0, 0, 1);
+  --ease-stick: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-envelope: cubic-bezier(0.5, 0, 0.75, 0);
+
+  --motion-fast: 150ms ease-out;
+  --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-stick: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-envelope: 500ms cubic-bezier(0.5, 0, 0.75, 0);
+  --motion-strike: 400ms ease-in-out;
+  --motion-theme: 1200ms ease-in-out;
+  --motion-view-transition: 250ms cubic-bezier(0.2, 0, 0, 1);
+
+  --grain-enabled: 0;
+}
+
+[data-theme='night'] {
+  --color-bg: #16130f;
+  --color-surface: #221e18;
+  --color-ink: #f2ece1;
+  --color-ink-muted: #a79f92;
+  --color-line: rgba(242, 236, 225, 0.14);
+  --color-marker: #ff6a3d;
+  --color-on-marker: #16130f;
+  --color-link: #ff6a3d;
+  --color-note-bg: #3d3412;
+  --color-status-closed: #3a342b;
+  --color-closed: #3a342b;
+  --color-tape: rgba(242, 236, 225, 0.28);
+  --color-glass: rgba(34, 30, 24, 0.82);
+  --color-scrim: rgba(0, 0, 0, 0.55);
+
+  --color-map-land: #1d1914;
+  --color-map-road: rgba(242, 236, 225, 0.15);
+  --color-map-ring: rgba(242, 236, 225, 0.38);
+  --color-map-water: #2a2638;
+  --color-map-park: #1e2a23;
+  --color-map-label: rgba(242, 236, 225, 0.5);
 }
 
 @layer base {
   html {
+    color-scheme: light;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    transition:
+      background-color var(--motion-theme),
+      color var(--motion-theme);
+  }
+
+  html[data-theme='night'] {
     color-scheme: dark;
   }
 
   body {
-    @apply bg-bg font-sans text-text antialiased;
+    @apply bg-bg font-ui text-base text-ink antialiased;
+    margin: 0;
+  }
+
+  a {
+    color: var(--color-link);
+  }
+
+  a:hover {
+    color: var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 150ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
   }
 }
