@@ -243,7 +243,7 @@ export function Sticker({
         {showFlag && <EveningFlag inverted={isBar} />}
       </div>
 
-      {state === 'selected' && (
+      {(state === 'selected' || (showFlag && effectiveSize !== 'sm')) && (
         <MarkerOval
           variant={STICKER_OVAL_VARIANT[type]}
           inverted={isBar}

@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import type { HTMLAttributes } from 'react';
 
 import { PlaceRow } from '@/entities/place';
+import { ShortlistToggleButton, useShortlistState } from '@/features/shortlist-toggle';
 import { Sheet, type SheetSnap } from '@/shared/ui/sheet';
 import {
   countSheetVisitedPlaces,
@@ -57,6 +58,8 @@ export function PlacesSheet({
   className,
   ...rest
 }: PlacesSheetProps) {
+  const { placeIds: shortlistPlaceIds } = useShortlistState();
+  const resolvedEveningPlaceIds = eveningPlaceIds ?? shortlistPlaceIds;
   const sortedEntries = sortSheetPlacesByDistance(places, origin);
   const resolvedVisitedCount = visitedCount ?? countSheetVisitedPlaces(places);
   const resolvedTotalCount = totalCount ?? places.length;
@@ -87,7 +90,7 @@ export function PlacesSheet({
       <div role="list" aria-label={title} className="flex flex-col border-t-[1.5px] border-line">
         {sortedEntries.map(({ item, place, distanceM, visited }) => {
           const isSelected = selectedPlaceId === place.id;
-          const inEvening = isInEveningSet(place.id, eveningPlaceIds);
+          const inEvening = isInEveningSet(place.id, resolvedEveningPlaceIds);
           const href = getPlaceHref?.(place.id);
 
           return (
@@ -100,6 +103,9 @@ export function PlacesSheet({
                 inEvening={inEvening}
                 at={at}
                 href={href}
+                action={
+                  <ShortlistToggleButton placeId={place.id} placeName={place.name} mode="row" />
+                }
                 data-selected={isSelected ? 'true' : 'false'}
                 onClick={
                   onSelectPlace

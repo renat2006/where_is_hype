@@ -1,5 +1,18 @@
+import { QueryClient, QueryClientContext, useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { useContext } from 'react';
 import { Link, NavLink } from 'react-router';
+
+import { shortlistQueries } from '@/entities/shortlist';
+
+const fallbackQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      retry: false,
+    },
+  },
+});
 
 export interface BottomNavProps {
   eveningCount?: number;
@@ -7,7 +20,17 @@ export interface BottomNavProps {
 }
 
 export function BottomNav({ eveningCount, shortlistCount }: BottomNavProps) {
-  const count = eveningCount ?? shortlistCount ?? 0;
+  const contextQueryClient = useContext(QueryClientContext);
+  const activeQueryClient = contextQueryClient ?? fallbackQueryClient;
+  const hasExplicitCount = eveningCount !== undefined || shortlistCount !== undefined;
+  const shortlistQuery = useQuery(
+    {
+      ...shortlistQueries.mine(),
+      enabled: !hasExplicitCount,
+    },
+    activeQueryClient,
+  );
+  const count = eveningCount ?? shortlistCount ?? shortlistQuery.data?.places.length ?? 0;
 
   return (
     <nav

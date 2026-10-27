@@ -345,7 +345,7 @@ export function clusterMapPlaces(
   const buckets: Bucket[] = [];
 
   for (const node of singleNodes) {
-    if (node.selected) {
+    if (node.selected || node.inEvening) {
       buckets.push({
         members: [node],
         x: node.x,
