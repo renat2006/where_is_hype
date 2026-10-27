@@ -100,5 +100,6 @@
     "unauthenticated",
     "invalid authentication credentials"
   ],
-  "auth_cooldown_hours": 12
+  "auth_cooldown_hours": 12,
+  "max_rework": 2
 }

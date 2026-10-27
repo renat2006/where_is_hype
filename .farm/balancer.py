@@ -101,10 +101,10 @@ def split(value) -> list[str]:
 
 
 def new_task(role: str, prio: int = 5, deps=None, prefer=None, exclude=None, base: str = "", allow_paid: bool = False,
-             review: bool | None = None) -> dict:
+             review: bool | None = None, merge_into: str = "") -> dict:
     return {
         "role": role, "prio": prio, "deps": split(deps), "prefer": split(prefer), "exclude": split(exclude),
-        "base": base or BASE, "allow_paid": allow_paid, "review": review,
+        "base": base or BASE, "allow_paid": allow_paid, "review": review, "merge_into": merge_into,
         "status": "pending", "added": now(), "attempts": 0, "tried": [],
     }
 
@@ -122,6 +122,7 @@ def discover(data: dict) -> None:
             meta["role"], int(meta.get("prio", 5)), meta.get("deps"), meta.get("prefer"), meta.get("exclude"),
             meta.get("base", ""), meta.get("allow_paid", "").lower() in ("1", "true", "yes"),
             None if review is None else review.lower() in ("1", "true", "yes"),
+            meta.get("merge_into", ""),
         )
         log(f"{task_id} queued from tasks/{spec.name} (role {meta['role']})")
 
@@ -195,6 +196,86 @@ def push_branch(task_id: str) -> str:
         capture_output=True, text=True,
     )
     return "pushed" if res.returncode == 0 else f"push failed: {res.stderr.strip()[:160]}"
+
+
+def merge_branch(task_id: str, target: str) -> str:
+    wt = WORKTREES / f"_merge-{target.replace('/', '_')}"
+    root = ["git", "-C", str(ROOT)]
+    git = ["git", "-C", str(wt), "-c", "core.hooksPath=/dev/null"]
+    subprocess.run([*root, "fetch", "-q", REMOTE], capture_output=True)
+    start = f"{REMOTE}/{target}"
+    if subprocess.run([*root, "rev-parse", "-q", "--verify", start], capture_output=True).returncode != 0:
+        start = f"{REMOTE}/{BASE}"
+    if not wt.exists():
+        subprocess.run([*root, "worktree", "add", "-q", "--detach", str(wt), start], capture_output=True)
+    subprocess.run([*git, "merge", "--abort"], capture_output=True)
+    subprocess.run([*git, "checkout", "-q", "--detach", "-f", start], capture_output=True)
+    res = subprocess.run(
+        [*git, "merge", "--no-ff", "-q", "-m", f"Merge agents/{task_id} into {target}", f"{REMOTE}/agents/{task_id}"],
+        capture_output=True, text=True,
+    )
+    if res.returncode != 0:
+        subprocess.run([*git, "merge", "--abort"], capture_output=True)
+        return "conflict"
+    res = subprocess.run([*git, "push", "-q", REMOTE, f"HEAD:refs/heads/{target}"], capture_output=True, text=True)
+    return "merged" if res.returncode == 0 else f"merge push failed: {res.stderr.strip()[:160]}"
+
+
+def review_verdict(review_id: str) -> str:
+    report = REPORTS / f"{review_id}.md"
+    text = report.read_text(errors="ignore").lower() if report.exists() else ""
+    m = re.search(r"вердикт[^\n]*?(доработать|принять)", text)
+    return m.group(1) if m else "доработать"
+
+
+def complete(task_id: str, task: dict) -> None:
+    target = task.get("merge_into")
+    if not target:
+        task.update(status="done", finished=now())
+        return
+    result = merge_branch(task_id, target)
+    if result == "merged":
+        task.update(status="done", finished=now(), note=f"merged into {target}")
+        log(f"{task_id} merged into {target}")
+    elif result == "conflict":
+        (STATE / f"{task_id}.feedback").write_text(
+            f"Ветка agents/{task_id} конфликтует с {target}. Влей свежую {REMOTE}/{target} в свою ветку "
+            f"(git fetch {REMOTE} && git merge {REMOTE}/{target}), разреши конфликты, сохранив изменения обеих сторон "
+            "(при конфликте в pnpm-lock.yaml возьми версию базы и запусти pnpm install), прогони проверки и снова поставь «Статус: готово». Ревью уже пройдено, менять логику не нужно."
+        )
+        task.update(status="pending", pid=None, note=f"conflict with {target}")
+        log(f"{task_id} conflicts with {target} — back to its agent")
+    else:
+        task.update(status="failed", note=result)
+        log(f"{task_id} {result}")
+
+
+def settle_review(review_id: str, data: dict, cfg: dict) -> None:
+    target_id = review_id.removeprefix("REVIEW-")
+    target = data["tasks"].get(target_id)
+    if not target or target.get("status") != "review":
+        return
+    if review_verdict(review_id) == "принять":
+        target["accepted"] = True
+        complete(target_id, target)
+        return
+    rounds = target.get("rework", 0) + 1
+    if rounds > cfg.get("max_rework", 2):
+        target.update(status="failed", note=f"review rejected {rounds - 1}x — нужен тимлид")
+        log(f"{target_id} rejected by review again — needs the lead")
+        return
+    report = (REPORTS / f"{review_id}.md").read_text(errors="ignore")
+    (STATE / f"{target_id}.feedback").write_text(
+        "Ревью другой моделью вернуло работу на доработку. Исправь все P0 и P1, P2 — если это быстро. "
+        "Отчёт ревьюера:\n\n" + report[-6000:]
+    )
+    target.update(status="pending", pid=None, rework=rounds, attempts=0, tried=[], note=f"rework {rounds} after review")
+    data["tasks"].pop(review_id, None)
+    subprocess.run(["git", "-C", str(ROOT), "worktree", "remove", "--force", str(worktree(review_id))], capture_output=True)
+    subprocess.run(["git", "-C", str(ROOT), "branch", "-D", f"agents/{review_id}"], capture_output=True)
+    (TASKS / f"{review_id}.md").unlink(missing_ok=True)
+    (REPORTS / f"{review_id}.md").unlink(missing_ok=True)
+    log(f"{target_id} sent back for rework {rounds} by {review_id}")
 
 
 def verify(task_id: str, port: int, base: str = "") -> tuple[bool, str]:
@@ -294,6 +375,7 @@ def enqueue_review(task_id: str, task: dict, data: dict, cfg: dict) -> None:
         REVIEW_TEMPLATE.read_text()
         .replace("{{TARGET}}", task_id)
         .replace("{{AUTHOR_ENGINE}}", task["engine"])
+        .replace("{{AUTHOR_BASE}}", task.get("base") or BASE)
         .replace("{{PRIO}}", str(max(1, task.get("prio", 5) - 1)))
     )
     (TASKS / f"{review_id}.md").write_text(spec)
@@ -316,10 +398,19 @@ def finish(task_id: str, task: dict, data: dict, cfg: dict) -> None:
             log(f"{task_id} failed after {task['attempts']} attempts")
         return
     (STATE / f"{task_id}.feedback").unlink(missing_ok=True)
-    task.update(status="done", finished=now(), note=push_branch(task_id))
-    log(f"{task_id} done on {task['engine']} ({task['note']})")
-    if task["note"] == "pushed" and wants_review(task, cfg):
+    pushed = push_branch(task_id)
+    log(f"{task_id} verified on {task['engine']} ({pushed})")
+    if pushed != "pushed":
+        task.update(status="failed", note=pushed)
+        return
+    if wants_review(task, cfg) and not task.get("accepted"):
+        task.update(status="review", note="waiting for review")
         enqueue_review(task_id, task, data, cfg)
+    else:
+        task["note"] = pushed
+        complete(task_id, task)
+    if task_id.startswith("REVIEW-"):
+        settle_review(task_id, data, cfg)
 
 
 def tick() -> None:
@@ -399,7 +490,7 @@ def write_board(data: dict, cfg: dict) -> None:
         flag = " (выключен)" if not spec.get("enabled", True) else (" (платный)" if spec.get("paid") else "")
         lines.append(f"| {name}{flag} | {counts.get(name, 0)} | {spec['max']} | {pause} |")
     lines += ["", "| Задача | Роль | Статус | Движок | Попытки | Старт | Заметка |", "|---|---|---|---|---|---|---|"]
-    order = {"running": 0, "pending": 1, "failed": 2, "done": 3}
+    order = {"running": 0, "review": 1, "pending": 2, "failed": 3, "done": 4}
     for task_id, t in sorted(data["tasks"].items(), key=lambda kv: (order.get(kv[1].get("status"), 9), kv[1].get("prio", 5))):
         started = stamp(t["started"]) if t.get("started") else ""
         lines.append(
