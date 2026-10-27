@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="ru" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Где Хайп? Прототип</title>
+<meta name="description" content="Кликабельный прототип «Где Хайп?»: от сохранённого ролика до визита.">
+<meta name="theme-color" content="#F4EFE6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%23FF4A1C' stroke='%2317140F' stroke-width='4'/%3E%3Ctext x='32' y='45' font-size='38' font-family='Arial Black,Arial' font-weight='900' text-anchor='middle' fill='%2317140F'%3E%3F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Dela+Gothic+One&family=Martian+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4EFE6;--surface:#FFFDF8;--ink:#17140F;--ink-muted:#6B6358;--line:rgba(23,20,15,.12);
+  --marker:#FF4A1C;--on-marker:#17140F;--link:#D63A0E;--note-bg:#FFF1B8;--tape:rgba(226,212,178,.9);
+  --scrim:rgba(23,20,15,.36);--glass:rgba(255,253,248,.88);
+  --st-coffee:#FFD23F;--st-cafe:#9ADBC5;--st-rest:#C9B6FF;--st-bar:#FF4A1C;
+  --open:#9ADBC5;--closed:#E6DFD2;
+  --map-land:#EEE7D9;--map-road:rgba(23,20,15,.17);--map-ring:rgba(23,20,15,.42);--map-water:#D9D0EE;--map-park:#D3EADB;--map-label:rgba(23,20,15,.55);
+  --f-display:'Dela Gothic One','Onest',system-ui,sans-serif;--f-ui:'Onest',system-ui,sans-serif;--f-hand:'Caveat',cursive;--f-mono:'Martian Mono',ui-monospace,monospace;
+  --r-sm:8px;--r-md:16px;--r-lg:24px;--raised:0 3px 0 var(--ink);
+  --ease:cubic-bezier(.2,0,0,1);--stick:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme=night]{
+  --bg:#16130F;--surface:#221E18;--ink:#F2ECE1;--ink-muted:#A79F92;--line:rgba(242,236,225,.14);
+  --marker:#FF6A3D;--on-marker:#16130F;--link:#FF6A3D;--note-bg:#3D3412;--tape:rgba(242,236,225,.28);
+  --scrim:rgba(0,0,0,.55);--glass:rgba(34,30,24,.9);--closed:#3A342B;
+  --map-land:#1D1914;--map-road:rgba(242,236,225,.15);--map-ring:rgba(242,236,225,.38);--map-water:#2A2638;--map-park:#1E2A23;--map-label:rgba(242,236,225,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 16px/24px var(--f-ui);-webkit-font-smoothing:antialiased;transition:background-color .8s,color .8s}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--link)}
+.mono{font-family:var(--f-mono);font-size:.86em;letter-spacing:-.02em}
+.muted{color:var(--ink-muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* phone frame on desktop */
+#app{position:relative;margin:0 auto;width:100%;max-width:430px;height:100dvh;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+@media (min-width:520px){
+  body{display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 80%,var(--ink) 20%)}
+  #app{height:min(860px,96dvh);border:1.5px solid var(--ink);border-radius:32px;box-shadow:0 6px 0 var(--ink)}
+}
+
+/* buttons */
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:999px;border:1.5px solid var(--ink);background:var(--surface);font-weight:600;transition:transform .15s,box-shadow .15s}
+.btn:active{transform:translateY(2px)}
+.btn-primary{background:var(--marker);color:var(--on-marker);box-shadow:var(--raised)}
+.btn-primary:active{box-shadow:0 1px 0 var(--ink)}
+.btn-primary[disabled]{opacity:.45;cursor:not-allowed}
+.btn-text{border-color:transparent;background:transparent;text-decoration:underline;text-underline-offset:3px;padding:0 8px}
+.btn-block{width:100%}
+.icon-btn{width:44px;height:44px;border-radius:999px;border:1.5px solid var(--ink);background:var(--glass);display:inline-flex;align-items:center;justify-content:center;flex:none}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* layout */
+.top{display:flex;align-items:center;gap:8px;padding:12px 16px 8px;flex:none}
+.top h1,.h1{font:400 24px/30px var(--f-display);margin:0}
+.logo{font:400 20px/24px var(--f-display);letter-spacing:-.01em}
+.logo b{color:var(--marker);font-weight:400}
+.scroll{flex:1;overflow-y:auto;padding:0 16px 24px;-webkit-overflow-scrolling:touch}
+.stack>*+*{margin-top:12px}
+.bottom-bar{flex:none;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg)}
+.card{background:var(--surface);border:1.5px solid var(--ink);border-radius:var(--r-md);padding:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--ink);background:var(--surface);font-weight:500;font-size:14px;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.row-chips{display:flex;gap:8px;flex-wrap:wrap}
+.label{font-size:14px;font-weight:600;margin:20px 0 8px}
+
+/* stickers */
+.sticker{--c:var(--st-cafe);width:40px;height:40px;border-radius:999px;background:var(--c);color:#17140F;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid #17140F;box-shadow:0 0 0 3px #FFFDF8,0 0 0 4.5px #17140F,0 5px 0 4.5px #17140F;transform:rotate(var(--rot,-4deg));position:relative;flex:none}
+.sticker svg.i{width:20px;height:20px}
+.sticker.coffee{--c:var(--st-coffee)}.sticker.cafe{--c:var(--st-cafe)}.sticker.rest{--c:var(--st-rest)}.sticker.bar{--c:var(--st-bar)}
+.sticker.sm{width:32px;height:32px}.sticker.sm svg.i{width:16px;height:16px}
+.sticker.visited::after{content:"";position:absolute;left:-8px;right:-8px;top:50%;height:5px;margin-top:-2px;background:var(--marker);border-radius:4px;transform:rotate(-24deg);box-shadow:0 0 0 1.5px #17140F}
+.sticker .flag{position:absolute;top:-10px;right:-10px;width:22px;height:22px;border-radius:999px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font:500 11px var(--f-mono)}
+.sticker.dim{opacity:.35;filter:grayscale(.6)}
+
+/* map */
+.map-wrap{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--map-land)}
+.map-wrap>svg.map{position:absolute;left:50%;top:calc(50% + 8px);height:calc(100% + 24px);min-height:360px;aspect-ratio:420/513;transform:translate(-50%,-50%)}
+.map .road{stroke:var(--map-road);stroke-width:2;fill:none}
+.map .ring{stroke:var(--map-ring);stroke-width:3;fill:none}
+.map .water{stroke:var(--map-water);stroke-width:20;fill:none;stroke-linecap:round}
+.map .park{fill:var(--map-park)}
+.map text{fill:var(--map-label);font:600 11px var(--f-ui);letter-spacing:.06em;text-transform:uppercase}
+.pins{position:absolute;left:50%;top:calc(50% + 8px);height:calc(100% + 24px);min-height:360px;aspect-ratio:420/513;transform:translate(-50%,-50%)}
+.pin{position:absolute;transform:translate(-50%,-50%);background:none;border:0;padding:6px}
+.pin .name{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:4px;font-size:12px;line-height:14px;font-weight:600;white-space:nowrap;background:var(--surface);border:1px solid var(--ink);border-radius:6px;padding:1px 6px}
+.pin.new .sticker{animation:stick .5s var(--stick) both}
+@keyframes stick{0%{transform:translateY(-60px) scale(1.4) rotate(12deg);opacity:0}100%{transform:rotate(-4deg)}}
+.me{position:absolute;width:18px;height:18px;border-radius:999px;background:var(--ink);border:3px solid var(--surface);box-shadow:0 0 0 6px color-mix(in srgb,var(--ink) 15%,transparent);transform:translate(-50%,-50%)}
+.map-top{position:absolute;top:12px;left:16px;right:16px;display:flex;align-items:flex-start;gap:8px;z-index:2}
+.pill{background:var(--glass);border:1.5px solid var(--ink);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px;line-height:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+/* sheet */
+.sheet{flex:none;background:var(--surface);border-top:1.5px solid var(--ink);border-radius:var(--r-lg) var(--r-lg) 0 0;margin-top:-24px;position:relative;z-index:3;display:flex;flex-direction:column;max-height:52%;transition:max-height .3s var(--ease)}
+.sheet.full{max-height:86%}
+.grab{display:block;width:100%;height:24px;border:0;background:none;padding:0}
+.grab::before{content:"";display:block;width:40px;height:4px;border-radius:4px;background:var(--line);margin:10px auto 0;background:color-mix(in srgb,var(--ink) 30%,transparent)}
+.sheet-head{padding:0 16px 8px;display:flex;align-items:center;gap:8px}
+.sheet-list{overflow-y:auto;padding:0 16px 8px}
+.place-row{display:flex;align-items:center;gap:14px;width:100%;padding:12px 0;border:0;border-bottom:1px solid var(--line);background:none;text-align:left}
+.place-row:last-child{border-bottom:0}
+.place-row .t{flex:1;min-width:0}
+.place-row .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-row .m{font-size:13px;line-height:18px;color:var(--ink-muted)}
+.add-mini{width:44px;height:44px;border-radius:999px;border:1.5px solid var(--ink);background:var(--surface);display:flex;align-items:center;justify-content:center;flex:none}
+.add-mini[aria-pressed=true]{background:var(--marker);color:var(--on-marker)}
+.fab-row{display:flex;gap:8px;padding:8px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.fab-row .btn{flex:1;padding:0 12px}
+.badge{display:inline-flex;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--ink);color:var(--bg);align-items:center;justify-content:center;font:500 11px var(--f-mono)}
+
+/* status */
+.status{display:inline-flex;align-items:center;gap:6px;font-size:13px;line-height:18px;font-weight:500;border-radius:999px;padding:3px 10px;border:1.5px solid transparent}
+.status.open{background:var(--open);color:#17140F}
+.status.closed{background:var(--closed)}
+.status.unknown{border:1.5px dashed var(--ink-muted);color:var(--ink-muted)}
+.dot{width:8px;height:8px;border-radius:999px;background:currentColor}
+
+/* inputs */
+.field{display:flex;align-items:center;gap:8px;min-height:56px;padding:0 8px 0 16px;border:1.5px solid var(--ink);border-radius:var(--r-md);background:var(--surface)}
+.field input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:16px;padding:14px 0}
+.field:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--marker) 45%,transparent)}
+.example{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1.5px dashed var(--ink-muted);border-radius:var(--r-md);background:transparent;text-align:left}
+.example .ph{width:44px;height:56px;border-radius:8px;flex:none;background:linear-gradient(160deg,#FFD23F,#FF4A1C 60%,#C9B6FF);position:relative}
+.example .ph::after{content:"";position:absolute;left:50%;top:50%;border:8px solid transparent;border-left:12px solid #fff;transform:translate(-25%,-50%)}
+.example.locked .ph{background:linear-gradient(160deg,#6B6358,#17140F)}
+.example.locked .ph::after{border:0;width:12px;height:12px;border-radius:3px;background:#fff;transform:translate(-50%,-30%)}
+
+/* hero */
+.hero{font:400 32px/36px var(--f-display);margin:8px 0 12px;letter-spacing:-.01em}
+.hero mark{background:none;color:inherit;position:relative;white-space:nowrap}
+.hero mark::after{content:"";position:absolute;inset:-4px -8px -2px;border:3px solid var(--marker);border-radius:50% 46% 52% 44%/58% 50% 54% 46%;transform:rotate(-3deg)}
+.hand{font:600 24px/26px var(--f-hand);color:var(--ink-muted)}
+
+/* loading */
+.load-steps{list-style:none;padding:0;margin:24px 0}
+.load-steps li{display:flex;align-items:center;gap:12px;padding:10px 0;color:var(--ink-muted);transition:color .2s}
+.load-steps li.on{color:var(--ink);font-weight:600}
+.load-steps li .ck{width:24px;height:24px;border-radius:999px;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;flex:none}
+.load-steps li.done .ck{background:var(--open);color:#17140F;border-color:#17140F}
+.load-steps li.on .ck{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.15)}}
+.peel{width:96px;height:96px;margin:24px auto 0;display:block}
+.peel .s{animation:wob 1.2s ease-in-out infinite;transform-origin:48px 48px}
+@keyframes wob{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg) scale(1.05)}}
+
+/* candidate */
+.cand{display:flex;gap:14px;align-items:flex-start}
+.cand .t{flex:1;min-width:0}
+.cand .n{font-weight:700;font-size:18px;line-height:24px}
+.cand .m{font-size:14px;line-height:20px;color:var(--ink-muted)}
+.cand.best{border-width:2.5px}
+.tag{display:inline-block;font-size:12px;font-weight:600;line-height:16px;padding:2px 8px;border-radius:999px;background:var(--ink);color:var(--bg);margin-bottom:6px}
+
+/* place card */
+.place-hero{display:flex;gap:16px;align-items:center;margin:4px 0 12px}
+.place-hero h2{font:400 26px/30px var(--f-display);margin:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;font-size:15px}
+.facts svg.i{color:var(--ink-muted)}
+.reel{position:relative;display:flex;gap:12px;align-items:center;margin-top:20px;padding:14px;background:var(--surface);border:1.5px solid var(--ink);border-radius:var(--r-sm);transform:rotate(-1deg)}
+.reel::before{content:"";position:absolute;top:-10px;left:50%;width:84px;height:20px;margin-left:-42px;background:var(--tape);transform:rotate(3deg);border-left:2px dotted rgba(0,0,0,.08);border-right:2px dotted rgba(0,0,0,.08)}
+.reel .ph{width:40px;height:52px;border-radius:6px;flex:none;background:linear-gradient(160deg,#FFD23F,#FF4A1C 60%,#C9B6FF)}
+.note{margin-top:16px;padding:12px 14px;background:var(--note-bg);border-radius:var(--r-sm);font:600 22px/26px var(--f-hand)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.actions .wide{grid-column:1/-1}
+
+/* shortlist */
+.sl-item{display:flex;gap:12px;align-items:center}
+.sl-item .t{flex:1;min-width:0}
+.votes{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px}
+.ava{width:26px;height:26px;border-radius:999px;border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--st-rest);color:#17140F;margin-left:-8px}
+.ava:first-child{margin-left:0}
+.ava.b{background:var(--st-coffee)}.ava.c{background:var(--st-cafe)}
+.winner{border-width:2.5px;box-shadow:var(--raised)}
+
+/* friend */
+.friend-banner{background:var(--ink);color:var(--bg);padding:10px 16px;font-size:14px;line-height:20px;display:flex;gap:10px;align-items:center;flex:none}
+.friend-banner .btn{min-height:36px;padding:0 14px;border-color:var(--bg);background:transparent;color:var(--bg);font-size:14px}
+.vote-btn{min-height:44px;margin-top:12px;width:100%}
+.vote-btn[aria-pressed=true]{background:var(--marker);color:var(--on-marker);box-shadow:var(--raised)}
+
+/* overlay */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:20;animation:fade .2s}
+.modal{position:absolute;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-top:1.5px solid var(--ink);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom));max-height:90%;overflow-y:auto;animation:up .28s var(--ease)}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes fade{from{opacity:0}}
+.modal h3{font:400 22px/28px var(--f-display);margin:8px 0 6px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg .chip{justify-content:center}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;width:100%;background:none;border:0;text-align:left;font-weight:500}
+.switch{width:52px;height:32px;border-radius:999px;border:1.5px solid var(--ink);background:var(--closed);position:relative;flex:none;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:999px;background:var(--surface);border:1.5px solid var(--ink);transition:transform .2s var(--ease)}
+.toggle[aria-checked=true] .switch{background:var(--marker)}
+.toggle[aria-checked=true] .switch::after{transform:translateX(20px)}
+.toast{position:absolute;left:16px;right:16px;top:68px;z-index:30;background:var(--ink);color:var(--bg);border-radius:var(--r-md);padding:12px 16px;font-weight:500;display:flex;align-items:center;gap:10px;animation:up .25s var(--ease)}
+.big-check{width:88px;height:88px;border-radius:999px;background:var(--open);border:1.5px solid #17140F;box-shadow:0 4px 0 #17140F;display:flex;align-items:center;justify-content:center;margin:12px auto;color:#17140F}
+.big-check svg.i{width:44px;height:44px;stroke-width:2.5}
+.spin{width:56px;height:56px;margin:20px auto;border-radius:999px;border:4px solid var(--line);border-top-color:var(--marker);animation:rot 0.9s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.confetti{position:absolute;inset:0;pointer-events:none;z-index:40;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:10px;height:14px;border:1.5px solid #17140F;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.empty{text-align:center;padding:24px 8px}
+.hint-arrow{display:block;margin:0 auto;color:var(--ink-muted)}
+.sug{display:block;width:100%;text-align:left;padding:12px 4px;border:0;border-bottom:1px solid var(--line);background:none}
+.sug b{font-weight:700}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v2M10 2v2M14 2v2"/></symbol>
+  <symbol id="i-cafe" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+  <symbol id="i-rest" viewBox="0 0 24 24"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24"><path d="M8 22h8M7 10h10M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-metro" viewBox="0 0 24 24"><path d="M3 19 8 5l4 8 4-8 5 14"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.5 2.3a.6.6 0 0 1 1 0l2.9 5.9 6.5.9a.6.6 0 0 1 .3 1l-4.7 4.6 1.1 6.4a.6.6 0 0 1-.8.6L12 18.7l-5.8 3a.6.6 0 0 1-.8-.6l1.1-6.4-4.7-4.6a.6.6 0 0 1 .3-1l6.5-.9Z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.5 21.7a.5.5 0 0 0 .9 0L22 3a.5.5 0 0 0-.6-.6L2.3 9a.5.5 0 0 0 0 .9l7.8 3.1a2 2 0 0 1 1.1 1.1Z"/><path d="m21.9 2.1-10.9 10.9"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.3 2a6 6 0 0 0 4.1-1.4.5.5 0 0 1 .6.4v10.4a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.5"/></symbol>
+  <symbol id="i-here" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+</svg>
+<script>
+(() => {
+'use strict';
+// ---------- mock data ----------
+const TYPES = {coffee:'Кофейня', cafe:'Кафе', rest:'Ресторан', bar:'Бар'};
+const NOW = {label:'вт, 18:40', h:18.67};
+const SEED = [
+  {id:'zerno', name:'Зерно и Дым', type:'coffee', addr:'Покровка, 17', metro:'Китай-город', walk:6, open:8, close:22, price:600, x:304, y:206, dist:0.6, source:'Reels · @moscow.coffee', note:'Флэт уайт на овсяном, говорят лучший в районе'},
+  {id:'dvor', name:'Тёплый двор', type:'cafe', addr:'Маросейка, 9', metro:'Китай-город', walk:4, open:10, close:23, price:1200, x:222, y:244, dist:0.9, source:'TikTok · @eda.msk', note:''},
+  {id:'podval', name:'Подвал 42', type:'bar', addr:'Мясницкая, 24', metro:'Чистые пруды', walk:3, open:18, close:27, price:1500, x:252, y:138, dist:1.2, source:'Reels · @bar.hunter', note:'Брать настойку дня'},
+  {id:'siren', name:'Сирень', type:'rest', addr:'Пятницкая, 22', metro:'Новокузнецкая', walk:5, open:12, close:24, price:2800, x:222, y:350, dist:2.1, source:'ВК · клип', note:''},
+  {id:'utro', name:'Утро на Арбате', type:'coffee', addr:'Арбат, 31', metro:'Смоленская', walk:7, open:8, close:20, price:500, x:96, y:250, dist:3.0, source:'YouTube Shorts', note:''},
+  {id:'hink', name:'Хинкальная №5', type:'cafe', addr:'Тверская, 18', metro:'Пушкинская', walk:2, open:null, close:null, price:null, x:160, y:150, dist:2.4, source:'Reels · @gde.poest', note:''},
+];
+const NEW_CANDS = [
+  {id:'lapsha', name:'Лапша и Ко', type:'cafe', addr:'Покровка, 29', metro:'Курская', walk:9, open:11, close:23, price:900, x:322, y:156, dist:0.4, source:'Reels · @lapsha.moscow', note:'', match:'Совпало: название и улица в подписи'},
+  {id:'lapsha2', name:'Лапша и Ко', type:'cafe', addr:'Цветной бульвар, 15', metro:'Цветной бульвар', walk:3, open:11, close:23, price:900, x:205, y:100, dist:2.0, source:'Reels · @lapsha.moscow', note:'', match:'Другой адрес этой сети'},
+  {id:'lapshabar', name:'Лапша Бар', type:'bar', addr:'Никольская, 10', metro:'Лубянка', walk:4, open:12, close:26, price:1400, x:196, y:205, dist:1.0, source:'Reels · @lapsha.moscow', note:'', match:'Похожее название'},
+];
+const SEARCH_DB = [
+  {id:'dumpl', name:'Пельмени у Пруда', type:'cafe', addr:'Чистопрудный бульвар, 12', metro:'Чистые пруды', walk:2, open:10, close:23, price:800, x:292, y:112, dist:1.1, source:'Ссылка была закрыта', note:''},
+  {id:'pekar', name:'Пекарня Пятница', type:'coffee', addr:'Пятницкая, 3', metro:'Новокузнецкая', walk:4, open:8, close:21, price:450, x:214, y:322, dist:1.8, source:'Ссылка была закрыта', note:''},
+  {id:'perec', name:'Перец и Мята', type:'rest', addr:'Петровка, 20', metro:'Чеховская', walk:5, open:12, close:24, price:2200, x:180, y:104, dist:1.9, source:'Ссылка была закрыта', note:''},
+  {id:'pinta', name:'Пинта на Покровке', type:'bar', addr:'Покровка, 6', metro:'Китай-город', walk:3, open:16, close:26, price:1300, x:262, y:262, dist:0.7, source:'Ссылка была закрыта', note:''},
+];
+const DEFAULT_FILTER = {time:19, types:[], price:1500, metro:true};
+
+const S = {
+  screen:'start', places:SEED.map(p=>({...p})), newId:null, linkKind:null,
+  filter:null, filterDraft:null, modal:null, sheetFull:false,
+  cardId:null, back:'map', shortlist:[], votes:{}, friendPicks:[], friendName:'',
+  visited:['utro'], rating:null, toast:null, loadStep:0, query:'', sent:false, voted:false,
+  theme:'day', eveningShown:false,
+};
+const app = document.getElementById('app');
+
+// ---------- helpers ----------
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ic = (id, cls='') => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const hh = h => { h = h % 24; return String(Math.floor(h)).padStart(2,'0') + ':' + (h%1 ? '30' : '00'); };
+const byId = id => S.places.find(p=>p.id===id) || NEW_CANDS.find(p=>p.id===id) || SEARCH_DB.find(p=>p.id===id);
+const isOpenAt = (p, h) => p.open==null ? null : (h >= p.open && h < p.close);
+function statusHtml(p, h = NOW.h){
+  const o = isOpenAt(p, h);
+  if (o === null) return `<span class="status unknown">Часы не уточнены</span>`;
+  return o ? `<span class="status open"><span class="dot"></span>Открыто до ${hh(p.close)}</span>`
+           : `<span class="status closed">Закрыто, откроется в ${hh(p.open)}</span>`;
+}
+const priceTxt = p => p.price==null ? 'чек не уточнён' : `чек ~<span class="mono">${p.price.toLocaleString('ru')}</span> ₽`;
+const sticker = (p, extra='') => {
+  const inSl = S.shortlist.includes(p.id), vis = S.visited.includes(p.id);
+  return `<span class="sticker ${p.type} ${vis?'visited':''} ${extra}" style="--rot:${(p.id.length%2?-4:4)}deg">${ic(p.type)}${inSl&&!extra.includes('sm')?`<span class="flag">${ic('flag')}</span>`:''}</span>`;
+};
+function matches(p, f){
+  if (!f) return true;
+  if (f.types.length && !f.types.includes(p.type)) return false;
+  const o = isOpenAt(p, f.time); if (o === false) return false;
+  if (f.price && p.price!=null && p.price > f.price) return false;
+  if (f.metro && p.walk > 12) return false;
+  return true;
+}
+const visible = () => S.places.filter(p => matches(p, S.filter)).sort((a,b)=>a.dist-b.dist);
+function set(patch){ Object.assign(S, patch); render(); }
+function toast(msg){ S.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(()=>{ S.toast=null; render(); }, 2600); }
+function confetti(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = document.createElement('div'); c.className='confetti';
+  const cols=['#FFD23F','#9ADBC5','#C9B6FF','#FF4A1C'];
+  for (let i=0;i<28;i++){ const e=document.createElement('i'); e.style.left=Math.random()*100+'%'; e.style.background=cols[i%4]; e.style.animationDelay=(Math.random()*.4)+'s'; e.style.borderRadius=i%3?'2px':'999px'; c.appendChild(e); }
+  app.appendChild(c); setTimeout(()=>c.remove(), 2200);
+}
+
+// ---------- map ----------
+function mapSvg(){
+  return `<svg class="map" viewBox="0 0 420 513" aria-hidden="true">
+    <path class="water" d="M-10 400 C 70 360 130 430 200 395 S 300 300 350 355 S 400 455 440 430"/>
+    <path class="park" d="M80 130 q40 -26 76 2 q10 34 -28 46 q-50 2 -48 -48z"/>
+    <path class="park" d="M282 140 q22 -8 34 10 q-4 20 -26 18 q-14 -8 -8 -28z"/>
+    <path class="park" d="M276 315 q34 -12 54 14 q-8 28 -40 26 q-22 -10 -14 -40z"/>
+    <g class="road"><path d="M210 0 L 205 513"/><path d="M0 220 L 420 250"/><path d="M45 45 L 350 490"/><path d="M385 60 L 45 480"/><path d="M0 315 L 420 165"/><path d="M128 0 L 140 513"/><path d="M302 0 L 290 513"/><path d="M0 120 L 420 110"/></g>
+    <path class="ring" d="M210 72 C 336 72 388 175 383 275 C 378 388 294 460 208 458 C 110 456 42 381 44 268 C 46 158 107 72 210 72 Z"/>
+    <text x="150" y="62">Тверская</text><text x="300" y="132">Басманный</text><text x="58" y="300">Арбат</text><text x="190" y="438">Замоскворечье</text><text x="196" y="262">Кремль</text>
+  </svg>`;
+}
+function screenMap(){
+  const list = visible();
+  const total = S.places.length, vis = S.places.filter(p=>S.visited.includes(p.id)).length;
+  const f = S.filter;
+  const pins = S.places.map(p => {
+    const on = list.includes(p);
+    return `<button class="pin ${p.id===S.newId?'new':''}" style="left:${p.x/420*100}%;top:${p.y/513*100}%" data-a="card" data-id="${p.id}" aria-label="${esc(p.name)}">${sticker(p, on?'':'dim')}${p.id===S.newId?`<span class="name">${esc(p.name)}</span>`:''}</button>`;
+  }).join('');
+  const rows = list.length ? list.map(p => `
+    <div class="place-row">
+      <button class="place-row" style="padding:0;border:0" data-a="card" data-id="${p.id}">
+        ${sticker(p,'sm')}
+        <span class="t"><span class="n" style="display:block">${esc(p.name)}</span>
+        <span class="m">${TYPES[p.type]} · <span class="mono">${p.dist.toFixed(1).replace('.',',')}</span> км · ${p.open==null?'часы не уточнены':(isOpenAt(p,f?f.time:NOW.h)?'открыто':'закрыто')+(f?` в ${hh(f.time)}`:'')}</span></span>
+      </button>
+      ${f ? `<button class="add-mini" data-a="sl" data-id="${p.id}" aria-pressed="${S.shortlist.includes(p.id)}" aria-label="${S.shortlist.includes(p.id)?'Убрать из «На вечер»':'Добавить в «На вечер»'}">${ic(S.shortlist.includes(p.id)?'check':'plus')}</button>` : ''}
+    </div>`).join('')
+    : `<div class="empty"><p class="h1" style="font-size:20px">Ничего не подошло</p><p class="muted">Попробуй другое время или чек.</p><button class="btn" data-a="reset">Сбросить фильтры</button></div>`;
+  const nSl = S.shortlist.length;
+  return `
+  <div class="map-wrap">
+    ${mapSvg()}
+    <div class="pins">${pins}<span class="me" style="left:${272/420*100}%;top:${226/513*100}%" title="Ты здесь"></span></div>
+    <div class="map-top">
+      <span class="pill logo" style="font-size:16px">Где Хайп<b>?</b></span>
+      <span style="flex:1"></span>
+      <span class="pill">был в <span class="mono">${vis}</span> из <span class="mono">${total}</span></span>
+      <button class="icon-btn" data-a="theme" aria-label="Сменить тему">${ic(S.theme==='day'?'moon':'sun')}</button>
+    </div>
+  </div>
+  <section class="sheet ${S.sheetFull?'full':''}" aria-label="Мои места">
+    <button class="grab" data-a="sheet" aria-label="${S.sheetFull?'Свернуть список':'Развернуть список'}"></button>
+    <div class="sheet-head">
+      <div style="flex:1"><div style="font-weight:700;font-size:18px">${f?`На вечер: <span class="mono">${list.length}</span> из <span class="mono">${total}</span>`:'Мои места'}</div>
+      <div class="m muted" style="font-size:13px">${f?`открыто в ${hh(f.time)}${f.types.length?' · '+f.types.map(t=>TYPES[t].toLowerCase()).join(', '):''}${f.price?` · до ${f.price} ₽`:''}${f.metro?' · у метро':''}`:'ближе к тебе сверху'}</div></div>
+      ${f?`<button class="chip" data-a="filter">${ic('filter')}Изменить</button><button class="icon-btn" style="background:var(--surface)" data-a="reset" aria-label="Сбросить фильтр">${ic('x')}</button>`:''}
+    </div>
+    ${f && !nSl && list.length ? `<p class="muted" style="margin:0 16px 4px;font-size:13px">Нажми ${ic('plus')} у 2–3 мест, чтобы собрать варианты для друга</p>`:''}
+    <div class="sheet-list">${rows}</div>
+    <div class="fab-row">
+      ${nSl ? `<button class="btn btn-primary" data-a="shortlist">${ic('flag')}На вечер <span class="badge">${nSl}</span></button>`
+            : (f ? `<button class="btn" data-a="add">${ic('plus')}Добавить</button>` : `<button class="btn btn-primary" data-a="filter">${ic('filter')}Куда сегодня?</button>`)}
+      ${nSl ? `<button class="btn" data-a="add" style="flex:0 0 auto">${ic('plus')}<span class="sr">Добавить место</span></button>` : (f ? '' : `<button class="btn" data-a="add">${ic('plus')}Добавить</button>`)}
+    </div>
+  </section>`;
+}
+
+// ---------- screens ----------
+function screenStart(){
+  return `
+  <div class="top"><span class="logo">Где Хайп<b>?</b></span><span style="flex:1"></span><button class="icon-btn" data-a="theme" aria-label="Сменить тему">${ic(S.theme==='day'?'moon':'sun')}</button></div>
+  <div class="scroll">
+    <p class="hero">Сохранил место в&nbsp;ролике? <mark>Сходи</mark> туда.</p>
+    <p class="muted" style="margin:0 0 20px">Кидай ссылку на ролик, место появится на твоей карте. Вечером выберешь, куда пойти, вместе с другом.</p>
+    <form data-f="link" class="stack">
+      <label for="link" class="label" style="margin:0">Ссылка на ролик</label>
+      <div class="field">${ic('link')}<input id="link" name="link" inputmode="url" autocomplete="off" placeholder="instagram.com/reel/…" value="${esc(S.linkVal||'')}"><button class="btn btn-primary" style="min-height:40px;padding:0 16px">Найти</button></div>
+    </form>
+    <p class="label">Или возьми ролик из примера</p>
+    <div class="stack">
+      <button class="example" data-a="example" data-k="ok"><span class="ph"></span><span><b>Reels от @lapsha.moscow</b><br><span class="muted" style="font-size:14px">«Лапша на Покровке, которую все снимают»</span></span></button>
+      <button class="example locked" data-a="example" data-k="locked"><span class="ph"></span><span><b>Закрытый аккаунт в TikTok</b><br><span class="muted" style="font-size:14px">Подписи не видно</span></span></button>
+    </div>
+    <p style="text-align:center;margin-top:20px"><button class="btn btn-text" data-a="go-map">Сначала посмотреть мои места</button></p>
+    <p class="hand" style="text-align:center;margin-top:8px">без регистрации, честно</p>
+  </div>`;
+}
+function screenLoading(){
+  const steps = ['Читаем подпись к ролику','Ищем название и улицу','Сверяем с базой мест'];
+  return `
+  <div class="top"><button class="icon-btn" data-a="to-start" aria-label="Назад">${ic('back')}</button></div>
+  <div class="scroll">
+    <svg class="peel" viewBox="0 0 96 96" aria-hidden="true"><g class="s"><circle cx="48" cy="48" r="34" fill="#9ADBC5" stroke="#17140F" stroke-width="3"/><circle cx="48" cy="48" r="40" fill="none" stroke="#FFFDF8" stroke-width="5"/><circle cx="48" cy="48" r="43" fill="none" stroke="#17140F" stroke-width="2"/><text x="48" y="60" text-anchor="middle" font-family="Dela Gothic One" font-size="34" fill="#17140F">?</text></g></svg>
+    <h1 class="h1" style="text-align:center;margin-top:16px">Смотрим ролик…</h1>
+    <ul class="load-steps">${steps.map((s,i)=>`<li class="${i<S.loadStep?'done':i===S.loadStep?'on':''}"><span class="ck">${i<S.loadStep?ic('check'):''}</span>${s}</li>`).join('')}</ul>
+  </div>`;
+}
+function screenCands(){
+  return `
+  <div class="top"><button class="icon-btn" data-a="to-start" aria-label="Назад">${ic('back')}</button><h1>Это место?</h1></div>
+  <div class="scroll stack">
+    <p class="muted" style="margin:0">Нашли в подписи к ролику. Выбери нужное.</p>
+    ${NEW_CANDS.map((p,i)=>`
+      <div class="card cand ${i===0?'best':''}">
+        ${sticker(p)}
+        <div class="t">
+          ${i===0?'<span class="tag">Скорее всего</span>':''}
+          <div class="n">${esc(p.name)}</div>
+          <div class="m">${TYPES[p.type]} · ${esc(p.addr)}</div>
+          <div class="m">${ic('metro')} ${esc(p.metro)}, <span class="mono">${p.walk}</span> мин пешком</div>
+          <div class="m" style="margin-top:4px;font-size:13px">${esc(p.match)}</div>
+          <button class="btn ${i===0?'btn-primary':''} btn-block" style="margin-top:12px" data-a="save" data-id="${p.id}">Да, сохранить</button>
+        </div>
+      </div>`).join('')}
+    <p style="text-align:center"><button class="btn btn-text" data-a="search">Здесь нет нужного</button></p>
+  </div>`;
+}
+function screenSearch(){
+  const q = S.query.trim().toLowerCase();
+  const res = q.length >= 2 ? SEARCH_DB.filter(p => p.name.toLowerCase().includes(q) || p.addr.toLowerCase().includes(q)) : [];
+  return `
+  <div class="top"><button class="icon-btn" data-a="to-start" aria-label="Назад">${ic('back')}</button><h1>Найдём сами</h1></div>
+  <div class="scroll">
+    ${S.linkKind==='locked'?`<div class="card" style="background:var(--note-bg);border-style:dashed;margin-bottom:16px"><b>Не узнали место.</b> Ссылка закрыта, подписи не видно. Напиши название, найдём сами.</div>`:''}
+    <div class="field">${ic('search')}<input id="q" data-i="query" autocomplete="off" placeholder="Название или улица" value="${esc(S.query)}"></div>
+    ${q.length<2?`<p class="muted" style="font-size:14px">Начни вводить, например «пе» или «покровка»</p>`:''}
+    <div style="margin-top:8px">${res.map(p=>`<button class="sug" data-a="save" data-id="${p.id}"><span style="display:flex;gap:12px;align-items:center">${sticker(p,'sm')}<span><b>${esc(p.name)}</b><br><span class="muted" style="font-size:14px">${TYPES[p.type]} · ${esc(p.addr)} · м. ${esc(p.metro)}</span></span></span></button>`).join('')}</div>
+    ${q.length>=2 && !res.length?`<div class="empty"><p><b>Не нашли место</b></p><p class="muted">Мы пока знаем только места внутри Садового.</p><button class="btn" data-a="toast" data-msg="Спасибо! Добавим место в базу">Сообщить</button></div>`:''}
+  </div>`;
+}
+function screenCard(){
+  const p = byId(S.cardId); const inSl = S.shortlist.includes(p.id), vis = S.visited.includes(p.id);
+  const ya = 'https://yandex.ru/maps/213/moscow/?text=' + encodeURIComponent('Москва, ' + p.addr);
+  return `
+  <div class="top"><button class="icon-btn" data-a="close-card" aria-label="Назад">${ic('back')}</button><span style="flex:1"></span>${vis?'<span class="hand" style="color:var(--marker)">сходил!</span>':''}</div>
+  <div class="scroll">
+    <div class="place-hero">${sticker(p)}<div><div class="muted" style="font-size:14px">${TYPES[p.type]}</div><h2>${esc(p.name)}</h2></div></div>
+    <div class="facts">
+      ${ic('pin')}<span>${esc(p.addr)}</span>
+      ${ic('metro')}<span>${esc(p.metro)} · <span class="mono">${p.walk}</span> мин пешком</span>
+      ${ic('clock')}<span>${statusHtml(p)}</span>
+      ${ic('wallet')}<span>${priceTxt(p)}</span>
+    </div>
+    <a class="reel" href="#" data-a="toast" data-msg="Откроется исходный ролик" style="color:inherit;text-decoration:none"><span class="ph"></span><span><b>Исходный ролик</b><br><span class="muted" style="font-size:14px">${esc(p.source)}</span></span></a>
+    ${p.note?`<div class="note">${esc(p.note)}</div>`:`<button class="btn btn-text" style="margin-top:12px;padding:0" data-a="toast" data-msg="Заметка до 280 символов, видна только тебе">${ic('plus')} Добавить заметку</button>`}
+    <div class="actions">
+      <a class="btn" href="${ya}" target="_blank" rel="noopener">${ic('route')}Маршрут</a>
+      <a class="btn" href="${ya}" target="_blank" rel="noopener">${ic('star')}Отзывы</a>
+      <button class="btn wide ${S.back==='shortlist'||vis?'':'btn-primary'}" data-a="sl" data-id="${p.id}" aria-pressed="${inSl}">${ic(inSl?'check':'flag')}${inSl?'В «На вечер»':'Добавить в «На вечер»'}</button>
+      <button class="btn wide ${S.back==='shortlist'&&!vis?'btn-primary':''}" data-a="here" data-id="${p.id}" ${vis?'disabled style="opacity:.5"':''}>${ic('here')}${vis?'Визит отмечен':'Я здесь'}</button>
+    </div>
+    <p class="muted" style="font-size:12px;text-align:center;margin-top:12px">Маршрут и отзывы открываются в Яндекс Картах</p>
+  </div>`;
+}
+function screenShortlist(){
+  const items = S.shortlist.map(byId);
+  const max = Math.max(0, ...items.map(p=>(S.votes[p.id]||[]).length));
+  const canSend = items.length >= 2;
+  const body = items.length ? items.map(p => {
+    const v = S.votes[p.id]||[]; const win = S.sent && S.voted && v.length===max && max>0;
+    return `<div class="card sl-item ${win?'winner':''}">
+      ${sticker(p,'sm')}
+      <button class="t" style="background:none;border:0;padding:0;text-align:left" data-a="card" data-id="${p.id}" data-back="shortlist">
+        <div style="font-weight:700">${esc(p.name)}</div>
+        <div class="muted" style="font-size:13px">${TYPES[p.type]} · м. ${esc(p.metro)} · ${p.price?`~<span class="mono">${p.price}</span> ₽`:'чек не уточнён'}</div>
+        ${S.sent ? `<div class="votes">${v.length?`<span style="display:inline-flex">${v.map((n,i)=>`<span class="ava ${['','b','c'][i%3]}">${esc(n[0])}</span>`).join('')}</span><span><span class="mono">${v.length}</span> ${v.length===1?'голос':'голоса'}</span>`:'<span class="muted">пока без голосов</span>'}${win?' · <b>лидер</b>':''}</div>`:''}
+      </button>
+      ${S.sent ? (win?`<button class="btn btn-primary" style="min-height:44px;padding:0 14px" data-a="card" data-id="${p.id}" data-back="shortlist">Идём</button>`:'') : `<button class="add-mini" data-a="sl" data-id="${p.id}" aria-label="Убрать">${ic('x')}</button>`}
+    </div>`;}).join('')
+    : `<div class="empty"><p><b>Пока пусто</b></p><p class="muted">Добавь 2–5 мест из своих, и друг выберет.</p></div>`;
+  return `
+  <div class="top"><button class="icon-btn" data-a="go-map" aria-label="Назад">${ic('back')}</button><h1>На вечер</h1></div>
+  <div class="scroll stack">
+    <p class="muted" style="margin:0">${S.sent ? (S.voted?'Друзья проголосовали. Лидер обведён, жми «Идём».':'Ссылка у друга. Голоса появятся здесь.') : 'Отправь другу, он отметит, что ему подходит. Приложение ему не нужно.'}</p>
+    ${body}
+    ${!S.sent && items.length<5 ? `<button class="btn btn-block" style="border-style:dashed" data-a="go-map">${ic('plus')}Добавить ещё место</button>`:''}
+  </div>
+  ${!S.sent ? `<div class="bottom-bar"><button class="btn btn-primary btn-block" data-a="send" ${canSend?'':'disabled'}>${ic('send')}Отправить другу</button>${canSend?'':'<p class="muted" style="font-size:13px;text-align:center;margin:8px 0 0">Нужно хотя бы 2 места</p>'}</div>`
+            : (!S.voted ? `<div class="bottom-bar"><button class="btn btn-primary btn-block" data-a="friend">Открыть ссылку как друг</button></div>` : '')}`;
+}
+function screenFriend(){
+  const items = S.shortlist.map(byId);
+  if (S.friendDone) return `
+    <div class="friend-banner"><span style="flex:1">Так ссылку видит друг</span></div>
+    <div class="scroll" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+      <div class="big-check">${ic('check')}</div>
+      <h1 class="h1">Готово${S.friendName?', '+esc(S.friendName):''}!</h1>
+      <p class="muted">Ренат увидит твой выбор и напишет, куда идёте.</p>
+      <button class="btn btn-primary" data-a="back-app" style="margin-top:12px">Вернуться в приложение Рената</button>
+      <p style="margin-top:24px"><button class="btn btn-text" data-a="toast" data-msg="Здесь откроется «Где Хайп?» с пустой картой">Собирай свои места</button></p>
+    </div>`;
+  return `
+  <div class="friend-banner"><span style="flex:1">Так ссылку видит друг: без входа и установки</span></div>
+  <div class="scroll stack">
+    <p class="muted" style="margin:16px 0 0">Ренат зовёт тебя</p>
+    <p class="hero" style="margin:14px 0 14px;font-size:30px;line-height:34px">Куда <mark>сегодня</mark>?</p>
+    <p class="muted" style="margin:0">Отметь всё, что тебе подходит.</p>
+    ${items.map(p=>{const on=S.friendPicks.includes(p.id); return `
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:center">${sticker(p,'sm')}<div style="flex:1;min-width:0"><div style="font-weight:700">${esc(p.name)}</div><div class="muted" style="font-size:13px">${TYPES[p.type]} · ${esc(p.addr)} · м. ${esc(p.metro)}</div></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${statusHtml(p, 19)}<span class="status closed">${priceTxt(p)}</span></div>
+        <button class="btn vote-btn" data-a="pick" data-id="${p.id}" aria-pressed="${on}">${ic(on?'check':'plus')}${on?'Мне подходит':'Мне подходит?'}</button>
+      </div>`;}).join('')}
+    <label class="label" for="fname" style="display:block">Как тебя зовут? <span class="muted" style="font-weight:400">необязательно</span></label>
+    <div class="field" style="margin-top:0"><input id="fname" data-i="friendName" placeholder="Например, Аня" value="${esc(S.friendName)}" autocomplete="given-name"></div>
+  </div>
+  <div class="bottom-bar"><button class="btn btn-primary btn-block" data-a="vote" ${S.friendPicks.length?'':'disabled'}>Отправить ответ</button></div>`;
+}
+
+// ---------- modals ----------
+function modalFilter(){
+  const d = S.filterDraft;
+  const n = S.places.filter(p=>matches(p,d)).length;
+  const times = [[NOW.h,'Сейчас'],[19,'19:00'],[21,'21:00']];
+  return `<div class="scrim" data-a="close-modal"></div>
+  <div class="modal" role="dialog" aria-label="Фильтр на вечер">
+    <button class="grab" data-a="close-modal" aria-label="Закрыть"></button>
+    <h3>Куда сегодня?</h3>
+    <p class="muted" style="margin:0">Отберём из твоих мест. Сейчас <span class="mono">${NOW.label}</span></p>
+    <div class="label">Открыто в</div>
+    <div class="seg">${times.map(([h,l])=>`<button class="chip" data-a="f-time" data-v="${h}" aria-pressed="${d.time===h}">${l}</button>`).join('')}</div>
+    <div class="label">Что хочется</div>
+    <div class="row-chips">${Object.entries(TYPES).map(([k,v])=>`<button class="chip" data-a="f-type" data-v="${k}" aria-pressed="${d.types.includes(k)}"><span class="sticker sm ${k}" style="width:18px;height:18px;box-shadow:none;border-width:1px"></span>${v}</button>`).join('')}</div>
+    <div class="label">Чек до</div>
+    <div class="row-chips">${[[1000,'1 000 ₽'],[1500,'1 500 ₽'],[2500,'2 500 ₽'],[0,'Любой']].map(([v,l])=>`<button class="chip" data-a="f-price" data-v="${v}" aria-pressed="${d.price===v}">${l}</button>`).join('')}</div>
+    <button class="toggle" role="switch" aria-checked="${d.metro}" data-a="f-metro"><span>Рядом с метро<br><span class="muted" style="font-size:13px;font-weight:400">до 1 км пешком</span></span><span class="switch"></span></button>
+    <p class="muted" style="font-size:13px;margin:4px 0 12px">Места без часов или чека не прячем, они помечены «не уточнено».</p>
+    <button class="btn btn-primary btn-block" data-a="apply" ${n?'':'disabled'}>${n?`Показать <span class="mono">${n}</span> ${n===1?'место':n<5?'места':'мест'}`:'Ничего не подошло'}</button>
+    ${n?'':'<p style="text-align:center;margin:8px 0 0"><button class="btn btn-text" data-a="f-reset">Сбросить фильтры</button></p>'}
+  </div>`;
+}
+function modalShare(){
+  return `<div class="scrim" data-a="close-modal"></div>
+  <div class="modal" role="dialog" aria-label="Отправить">
+    <button class="grab" data-a="close-modal" aria-label="Закрыть"></button>
+    <h3>Ссылка готова</h3>
+    <div class="field" style="margin:12px 0"><span class="mono" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">gdehype.ru/v/k7Fq2</span><button class="btn" style="min-height:40px" data-a="toast" data-msg="Ссылка скопирована">${ic('copy')}Копировать</button></div>
+    <p class="muted" style="font-size:14px;margin:0 0 12px">В мессенджере придёт превью со списком мест.</p>
+    <div class="row-chips" style="margin-bottom:16px">${['MAX','ВКонтакте','WhatsApp','Ещё…'].map(m=>`<button class="chip" data-a="shared">${m}</button>`).join('')}</div>
+    <button class="btn btn-primary btn-block" data-a="shared">Отправил</button>
+  </div>`;
+}
+function modalVisit(){
+  const p = byId(S.cardId);
+  if (S.modal==='visit-check') return `<div class="scrim"></div><div class="modal" role="dialog"><div class="spin"></div><h3 style="text-align:center">Проверяем, что ты рядом</h3><p class="muted" style="text-align:center">Геопозиция нужна один раз, мы её не храним</p></div>`;
+  if (S.modal==='visit-ok') return `<div class="scrim"></div><div class="modal" role="dialog">
+    <div style="display:flex;justify-content:center;margin:16px 0">${sticker({...p},'visited')}</div>
+    <h3 style="text-align:center">Визит отмечен</h3>
+    <p class="muted" style="text-align:center;margin:0 0 16px">Ты в <span class="mono">40</span> м от «${esc(p.name)}»</p>
+    <div class="label" style="text-align:center">Совпало с ожиданиями?</div>
+    <div class="seg">${['Лучше','Как ждал','Хуже'].map(r=>`<button class="chip" data-a="rate" data-v="${r}" aria-pressed="${S.rating===r}">${r}</button>`).join('')}</div>
+    <button class="btn btn-primary btn-block" style="margin-top:16px" data-a="visit-done" ${S.rating?'':'disabled'}>Готово</button>
+  </div>`;
+  return '';
+}
+
+// ---------- render ----------
+function render(){
+  const active = document.activeElement && document.activeElement.id;
+  const caret = active && document.activeElement.selectionStart;
+  document.documentElement.dataset.theme = S.theme;
+  document.querySelector('meta[name=theme-color]').content = S.theme==='day'?'#F4EFE6':'#16130F';
+  const scr = {start:screenStart, loading:screenLoading, cands:screenCands, search:screenSearch, map:screenMap, card:screenCard, shortlist:screenShortlist, friend:screenFriend}[S.screen]();
+  let ov = '';
+  if (S.modal==='filter') ov = modalFilter();
+  else if (S.modal==='share') ov = modalShare();
+  else if (S.modal && S.modal.startsWith('visit')) ov = modalVisit();
+  const t = S.toast ? `<div class="toast" role="status">${ic('check')}${esc(S.toast)}</div>` : '';
+  app.innerHTML = scr + ov + t;
+  if (active){ const el = document.getElementById(active); if (el){ el.focus(); try{ el.setSelectionRange(caret,caret); }catch(e){} } }
+}
+function go(screen, patch={}){ Object.assign(S, {toast:null}, patch, {screen}); render(); const sc = app.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
+
+function startLoading(kind){
+  S.linkKind = kind; go('loading', {loadStep:0});
+  const tick = () => {
+    S.loadStep++;
+    if (kind==='locked' && S.loadStep===1){ setTimeout(()=>go('search',{query:''}), 700); render(); return; }
+    if (S.loadStep>=3){ setTimeout(()=>go('cands'), 400); render(); return; }
+    render(); setTimeout(tick, 650);
+  };
+  setTimeout(tick, 650);
+}
+
+app.addEventListener('submit', e => {
+  e.preventDefault();
+  const v = new FormData(e.target).get('link').trim();
+  if (!v){ toast('Вставь ссылку или возьми пример ниже'); return; }
+  S.linkVal = v;
+  startLoading(/tiktok|private|закрыт/i.test(v) ? 'locked' : 'ok');
+});
+app.addEventListener('input', e => {
+  const k = e.target.dataset.i; if (!k) return;
+  S[k] = e.target.value; if (k==='query') render();
+});
+app.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  const a = el.dataset.a, id = el.dataset.id;
+  if (el.tagName==='A' && el.getAttribute('href')==='#') e.preventDefault();
+  switch(a){
+    case 'theme': {
+      S.theme = S.theme==='day'?'night':'day'; render();
+      if (S.theme==='night' && !S.eveningShown){ S.eveningShown = true; toast('Вечер настал'); }
+      break;
+    }
+    case 'example': S.linkVal = el.dataset.k==='ok' ? 'https://www.instagram.com/reel/C9lapsha/' : 'https://www.tiktok.com/@private/video/7311'; startLoading(el.dataset.k); break;
+    case 'to-start': go('start'); break;
+    case 'go-map': go('map', {newId:null}); break;
+    case 'search': go('search', {query:'', linkKind:'manual'}); break;
+    case 'save': {
+      if (S.places.some(p=>p.id===id)){ go('map'); toast('Уже в твоих местах'); break; }
+      const p = byId(id); S.places.push({...p}); go('map', {newId:id, filter:null, sheetFull:false});
+      if (navigator.vibrate) navigator.vibrate(30);
+      toast(`«${p.name}» на карте`); break;
+    }
+    case 'add': go('start', {linkVal:''}); break;
+    case 'card': go('card', {cardId:id, back: el.dataset.back || 'map'}); break;
+    case 'close-card': go(S.back); break;
+    case 'sheet': set({sheetFull:!S.sheetFull}); break;
+    case 'filter': set({modal:'filter', filterDraft: JSON.parse(JSON.stringify(S.filter || DEFAULT_FILTER))}); break;
+    case 'close-modal': set({modal:null}); break;
+    case 'f-time': S.filterDraft.time = +el.dataset.v; render(); break;
+    case 'f-type': { const t = S.filterDraft.types, v = el.dataset.v; const i = t.indexOf(v); i<0?t.push(v):t.splice(i,1); render(); break; }
+    case 'f-price': S.filterDraft.price = +el.dataset.v; render(); break;
+    case 'f-metro': S.filterDraft.metro = !S.filterDraft.metro; render(); break;
+    case 'f-reset': S.filterDraft = {time:NOW.h, types:[], price:0, metro:false}; render(); break;
+    case 'apply': set({filter:S.filterDraft, modal:null, sheetFull:true, newId:null}); break;
+    case 'reset': set({filter:null, sheetFull:false}); break;
+    case 'sl': {
+      const i = S.shortlist.indexOf(id);
+      if (i>=0){ S.shortlist.splice(i,1); render(); break; }
+      if (S.shortlist.length>=5){ toast('Максимум 5 мест, чтобы другу было легко выбрать'); break; }
+      S.shortlist.push(id); S.sent=false; S.voted=false; S.votes={};
+      toast(S.shortlist.length===1 ? 'В «На вечер». Добавь ещё 1–4 места' : `В «На вечер»: ${S.shortlist.length}`); break;
+    }
+    case 'shortlist': go('shortlist'); break;
+    case 'send': set({modal:'share'}); break;
+    case 'shared': S.modal=null; S.sent=true; S.voted=false; S.toast=null; render(); toast('Отправлено. Ждём голосов'); break;
+    case 'friend': go('friend', {friendPicks:[], friendDone:false}); break;
+    case 'pick': { const i = S.friendPicks.indexOf(id); i<0?S.friendPicks.push(id):S.friendPicks.splice(i,1); render(); break; }
+    case 'vote': {
+      const name = (S.friendName||'').trim() || 'Друг';
+      S.votes = {};
+      S.friendPicks.forEach(pid => (S.votes[pid] = S.votes[pid]||[]).push(name));
+      // ещё один друг из чата, чтобы был понятный лидер
+      const top = S.friendPicks[0]; (S.votes[top] = S.votes[top]||[]).push('Максим');
+      S.friendDone = true; render(); break;
+    }
+    case 'back-app': go('shortlist', {voted:true}); toast('Новые голоса в «На вечер»'); break;
+    case 'here': set({modal:'visit-check', cardId:id, rating:null}); setTimeout(()=>{ if (S.modal==='visit-check') set({modal:'visit-ok'}); }, 1400); break;
+    case 'rate': set({rating:el.dataset.v}); break;
+    case 'visit-done': {
+      if (!S.visited.includes(S.cardId)) S.visited.push(S.cardId);
+      go('map', {modal:null, filter:null, newId:null, sheetFull:false});
+      confetti(); toast('Отмечено! Спасибо за честность'); break;
+    }
+    case 'toast': toast(el.dataset.msg); break;
+  }
+});
+addEventListener('keydown', e => { if (e.key==='Escape' && S.modal && !S.modal.startsWith('visit')) set({modal:null}); });
+render();
+})();
+</script>
+</body>
+</html>
