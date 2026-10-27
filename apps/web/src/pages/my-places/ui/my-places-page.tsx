@@ -6,13 +6,25 @@ import {
 } from '@tanstack/react-query';
 import type { Place, SavedPlace } from '@where-is-hype/core';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
-import { savedPlaceQueries, useSeedDemoPlacesMutation } from '@/entities/saved-place';
+import {
+  countVisitedPlaces,
+  savedPlaceQueries,
+  useSeedDemoPlacesMutation,
+} from '@/entities/saved-place';
+import {
+  EveningFilterEmpty,
+  EveningFilterSheet,
+  rememberEveningFilterSearch,
+  resetEveningFilterMemory,
+  useEveningFilter,
+} from '@/features/evening-filter';
 import { DEFAULT_METRO_STATION_ID, GeoOriginPicker, useGeoOrigin } from '@/features/geo-origin';
 import { env } from '@/shared/config';
 import { track } from '@/shared/lib/analytics';
 import { Button } from '@/shared/ui/button';
+import { Chip } from '@/shared/ui/chip';
 import { Logo } from '@/shared/ui/logo';
 import { MetroStation } from '@/shared/ui/sticker';
 import { PlacesMap } from '@/widgets/places-map';
@@ -22,6 +34,7 @@ export interface MyPlacesPageProps {
   places?: readonly (Place | SavedPlace)[] | undefined;
   showDemoSeed?: boolean | undefined;
   autoRequestGeolocation?: boolean | undefined;
+  now?: Date | undefined;
 }
 
 const fallbackQueryClient = new QueryClient({
@@ -32,6 +45,11 @@ const fallbackQueryClient = new QueryClient({
     },
   },
 });
+
+function countAllVisited(items: readonly (Place | SavedPlace)[]): number {
+  const saved = items.filter((item): item is SavedPlace => 'visits' in item);
+  return countVisitedPlaces(saved);
+}
 
 function LocateCrosshairIcon() {
   return (
@@ -80,8 +98,10 @@ function MyPlacesPageContent({
   places: placesProp,
   showDemoSeed = env.apiMocks,
   autoRequestGeolocation = true,
+  now,
 }: MyPlacesPageProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const hasTrackedOpenRef = useRef(false);
 
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
@@ -115,7 +135,40 @@ function MyPlacesPageContent({
 
   const places = placesProp ?? savedPlacesQuery.data ?? [];
   const hasPlaces = places.length > 0;
+  const totalVisitedCount = countAllVisited(places);
   const showMetroPicker = needsMetroSelection || isMetroPickerOpen;
+
+  const {
+    filter,
+    isOpen: isFilterOpen,
+    isActive: isFilterActive,
+    matchedItems,
+    matchedCount,
+    totalCount,
+    mutedPlaceIds,
+    targetDate,
+    relaxations,
+    openFilter,
+    closeFilter,
+    applyAndCloseFilter,
+    updateFilter,
+    resetFilter,
+  } = useEveningFilter({
+    items: places,
+    now,
+  });
+
+  const displayedPlaces = isFilterActive ? matchedItems : places;
+  const isFilterResultEmpty = hasPlaces && isFilterActive && matchedCount === 0;
+
+  const navigateToPlace = (placeId: string) => {
+    if (isFilterActive) {
+      rememberEveningFilterSearch(location.search);
+    } else {
+      resetEveningFilterMemory();
+    }
+    void navigate(`/place/${placeId}`);
+  };
 
   const handleLocateClick = async () => {
     const updated = await requestGeolocation({ force: true });
@@ -124,13 +177,9 @@ function MyPlacesPageContent({
     }
   };
 
-  const handleOpenFilter = () => {
-    void navigate('?filter=1');
-  };
-
   const handleMapSelectPlace = (placeId: string) => {
     if (selectedPlaceId === placeId) {
-      void navigate(`/place/${placeId}`);
+      navigateToPlace(placeId);
       return;
     }
     setSelectedPlaceId(placeId);
@@ -167,11 +216,18 @@ function MyPlacesPageContent({
 
   return (
     <main className="relative mx-auto flex h-[calc(100dvh-76px)] min-h-[560px] w-full max-w-[430px] flex-col overflow-hidden bg-bg text-ink">
-      {!hasPlaces && <h1 className="sr-only">Мои места</h1>}
+      {(!hasPlaces || isFilterResultEmpty) && <h1 className="sr-only">Мои места</h1>}
+
+      {isFilterActive && !isFilterOpen && (
+        <span className="sr-only" data-testid="evening-filter-active-summary">
+          Показать {matchedCount} из {totalCount}
+        </span>
+      )}
 
       <div className="relative flex-1 overflow-hidden">
         <PlacesMap
           places={places}
+          mutedPlaceIds={isFilterActive ? mutedPlaceIds : undefined}
           origin={origin}
           showOriginDot={hasPlaces || kind === 'geolocation' || kind === 'metro'}
           selectedPlaceId={selectedPlaceId}
@@ -218,31 +274,59 @@ function MyPlacesPageContent({
 
         <div className="pointer-events-none absolute top-[72px] left-4 z-10">
           <div className="pointer-events-auto">
-            <Button
-              variant="map"
-              onClick={handleOpenFilter}
-              className="min-h-11 px-3.5 py-2 text-sm font-semibold"
-            >
-              <EveningFilterSlidersIcon />
-              <span>На вечер</span>
-            </Button>
+            {isFilterActive ? (
+              <Chip
+                selected
+                icon={<EveningFilterSlidersIcon />}
+                data-testid="evening-filter-trigger"
+                onClick={openFilter}
+              >
+                Фильтр · {matchedCount}
+              </Chip>
+            ) : (
+              <Button
+                variant="map"
+                data-testid="evening-filter-trigger"
+                onClick={openFilter}
+                className="min-h-11 px-3.5 py-2 text-sm font-semibold"
+              >
+                <EveningFilterSlidersIcon />
+                <span>На вечер</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
       {hasPlaces ? (
-        <PlacesSheet
-          places={places}
-          origin={origin}
-          selectedPlaceId={selectedPlaceId}
-          headingLevel={1}
-          defaultSnap="half"
-          getPlaceHref={(placeId) => `/place/${placeId}`}
-          onSelectPlace={(placeId) => {
-            setSelectedPlaceId(placeId);
-            void navigate(`/place/${placeId}`);
-          }}
-        />
+        isFilterResultEmpty ? (
+          <EveningFilterEmpty
+            filter={filter}
+            relaxations={relaxations}
+            onSelectRelaxation={(relaxation) => {
+              updateFilter(relaxation.filter, { keepOpen: false });
+            }}
+            onReset={() => {
+              resetFilter({ keepOpen: false });
+            }}
+          />
+        ) : (
+          <PlacesSheet
+            places={displayedPlaces}
+            origin={origin}
+            selectedPlaceId={selectedPlaceId}
+            visitedCount={totalVisitedCount}
+            totalCount={places.length}
+            at={isFilterActive ? targetDate : now}
+            headingLevel={1}
+            defaultSnap="half"
+            getPlaceHref={(placeId) => `/place/${placeId}`}
+            onSelectPlace={(placeId) => {
+              setSelectedPlaceId(placeId);
+              navigateToPlace(placeId);
+            }}
+          />
+        )
       ) : (
         <section
           aria-label="Список мест пуст"
@@ -280,6 +364,23 @@ function MyPlacesPageContent({
             )}
           </div>
         </section>
+      )}
+
+      {isFilterOpen && (
+        <EveningFilterSheet
+          filter={filter}
+          matchedCount={matchedCount}
+          totalCount={totalCount}
+          now={now}
+          onUpdate={(patch) => {
+            updateFilter(patch, { keepOpen: true });
+          }}
+          onReset={() => {
+            resetFilter({ keepOpen: true });
+          }}
+          onApply={applyAndCloseFilter}
+          onClose={closeFilter}
+        />
       )}
     </main>
   );
