@@ -1,18 +1,9 @@
-import {
-  QueryClient,
-  QueryClientContext,
-  QueryClientProvider,
-  useQuery,
-} from '@tanstack/react-query';
+import { QueryClient, QueryClientContext, QueryClientProvider } from '@tanstack/react-query';
 import type { Place, SavedPlace } from '@where-is-hype/core';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import {
-  countVisitedPlaces,
-  savedPlaceQueries,
-  useSeedDemoPlacesMutation,
-} from '@/entities/saved-place';
+import { countVisitedPlaces, useSeedDemoPlacesMutation } from '@/entities/saved-place';
 import {
   EveningFilterEmpty,
   EveningFilterSheet,
@@ -21,6 +12,11 @@ import {
   useEveningFilter,
 } from '@/features/evening-filter';
 import { DEFAULT_METRO_STATION_ID, GeoOriginPicker, useGeoOrigin } from '@/features/geo-origin';
+import {
+  OfflinePlacesView,
+  SlowNetworkView,
+  useCachedSavedPlaces,
+} from '@/features/offline-status';
 import { env } from '@/shared/config';
 import { track } from '@/shared/lib/analytics';
 import { Button } from '@/shared/ui/button';
@@ -118,9 +114,15 @@ function MyPlacesPageContent({
     requestGeolocation,
   } = useGeoOrigin({ autoRequest: autoRequestGeolocation });
 
-  const savedPlacesQuery = useQuery({
-    ...savedPlaceQueries.list(),
-    enabled: placesProp === undefined,
+  const {
+    places: cachedPlaces,
+    updatedAt: cachedUpdatedAt,
+    isOffline,
+    isLoading: isPlacesLoading,
+    isSlowLoading,
+  } = useCachedSavedPlaces({
+    places: placesProp,
+    now,
   });
 
   const seedDemoMutation = useSeedDemoPlacesMutation();
@@ -133,7 +135,7 @@ function MyPlacesPageContent({
     track('map_opened');
   }, []);
 
-  const places = placesProp ?? savedPlacesQuery.data ?? [];
+  const places = placesProp ?? cachedPlaces;
   const hasPlaces = places.length > 0;
   const totalVisitedCount = countAllVisited(places);
   const showMetroPicker = needsMetroSelection || isMetroPickerOpen;
@@ -185,6 +187,24 @@ function MyPlacesPageContent({
     setSelectedPlaceId(placeId);
   };
 
+  if (isOffline) {
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg text-ink">
+        <OfflinePlacesView
+          places={places}
+          updatedAt={cachedUpdatedAt}
+          origin={origin}
+          now={now}
+          fullScreen
+          getPlaceHref={(placeId) => `/place/${placeId}`}
+          onSelectPlace={(placeId) => {
+            navigateToPlace(placeId);
+          }}
+        />
+      </main>
+    );
+  }
+
   if (showMetroPicker) {
     return (
       <main className="mx-auto flex min-h-[calc(100dvh-76px)] w-full max-w-[430px] flex-col bg-bg text-ink">
@@ -210,6 +230,14 @@ function MyPlacesPageContent({
             });
           }}
         />
+      </main>
+    );
+  }
+
+  if (isPlacesLoading) {
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg text-ink">
+        <SlowNetworkView isLoading={isPlacesLoading} showSlowHint={isSlowLoading} fullScreen />
       </main>
     );
   }
