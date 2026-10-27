@@ -1,5 +1,5 @@
 ---
-role: audit
+role: review
 review: false
 base: agents/{{TARGET}}
 exclude: {{AUTHOR_ENGINE}}

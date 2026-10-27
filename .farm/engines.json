@@ -11,7 +11,7 @@
   "review_roles": [
     "build"
   ],
-  "review_role": "audit",
+  "review_role": "review",
   "limit_patterns": [
     "you’ve hit your usage limit",
     "you've hit your usage limit",
@@ -26,14 +26,15 @@
   ],
   "engines": {
     "agy-argon": {
-      "max": 4,
+      "max": 5,
       "enabled": true,
       "paid": false,
       "roles": [
         "build",
         "research",
         "storm",
-        "audit"
+        "audit",
+        "review"
       ]
     },
     "agy-flash": {
@@ -43,7 +44,8 @@
       "roles": [
         "research",
         "storm",
-        "audit"
+        "audit",
+        "review"
       ]
     },
     "agy-opus": {
@@ -51,7 +53,7 @@
       "enabled": true,
       "paid": false,
       "roles": [
-        "audit"
+        "review"
       ]
     },
     "agy-sonnet": {
@@ -71,7 +73,8 @@
       "roles": [
         "build",
         "audit",
-        "research"
+        "research",
+        "review"
       ]
     },
     "claude": {
@@ -82,7 +85,8 @@
         "build",
         "audit",
         "research",
-        "storm"
+        "storm",
+        "review"
       ]
     }
   },
@@ -101,9 +105,12 @@
     ],
     "audit": [
       "agy-argon",
+      "agy-flash"
+    ],
+    "review": [
       "agy-opus",
-      "claude",
       "codex-hi",
+      "claude",
       "agy-flash"
     ]
   },

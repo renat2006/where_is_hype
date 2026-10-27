@@ -1,7 +1,6 @@
 # Ферма агентов where_is_hype
 
-Работает на ПК (`ssh pc`, `~/dev/where_is_hype/.farm`). Агенты — `agy` (Gemini 4 Argon / 3.8 Flash, Claude Opus 4.6), `codex`, `claude`.
-Всё по умолчанию идёт на Argon. Opus — только второе мнение: ревью `REVIEW-*` (Argon как автор исключён) и запасной аудитор. Sonnet выключен.
+Работает на ПК (`ssh pc`, `~/dev/where_is_hype/.farm`). Агенты — `agy` (Gemini 4 Argon / 3.8 Flash, Claude Opus 4.6 только для ревью), `codex`, `claude`.
 Каждая задача идёт в своей рабочей копии `.farm/worktrees/<ID>` на ветке `agents/<ID>`, по готовности
 ветка пушится в GitHub через remote `github-hype` (deploy key только на эту репу).
 
@@ -28,8 +27,9 @@
 3. Агент пишет отчёт `.farm/reports/<ID>.md` и ставит `Статус: готово`.
 4. Ферма гоняет `verify.sh`. Не прошло — агента перезапускают с выводом проверки в промпте.
 5. Прошло — коммит, отчёт кладётся в ветку (`.farm/reports/<ID>.md`), push `agents/<ID>`.
-6. Для `build` автоматически ставится `REVIEW-<ID>` (роль `audit`) на **другом** движке, чем автор.
-7. Тимлид принимает по `ACCEPTANCE.md`.
+6. Для `build` автоматически ставится `REVIEW-<ID>` (роль `review`) на **другом** движке, чем автор.
+7. «Вердикт: доработать» — задача возвращается автору с отчётом ревью (не больше `max_rework` кругов).
+   «Принять» — ветка вливается в `merge_into`, если он задан; конфликт уходит обратно автору.
 
 Роли и движки по умолчанию:
 
@@ -38,9 +38,10 @@
 | build | agy-argon → codex-hi → claude |
 | research | agy-argon → agy-flash |
 | storm | agy-argon |
-| audit | agy-argon → agy-opus → claude → codex-hi → agy-flash |
+| audit | agy-argon → agy-flash |
+| review | agy-opus → codex-hi → claude → agy-flash |
 
-Лимиты одновременной работы: всего 6, argon 4, flash 3, codex-hi 2, claude 2. Движок `claude` выключен
+Лимиты одновременной работы: всего 6, argon 5, flash 3, opus 2, codex-hi 2, claude 2. Sonnet выключен по решению Рената. Движок `claude` выключен
 (`"enabled": false`), пока на ПК не выполнен `claude` → `/login`.
 
 ## Команды
