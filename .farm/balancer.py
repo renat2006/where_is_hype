@@ -112,10 +112,14 @@ def new_task(role: str, prio: int = 5, deps=None, prefer=None, exclude=None, bas
 def discover(data: dict) -> None:
     for spec in sorted(TASKS.glob("*.md")):
         task_id = spec.stem
-        if task_id in data["tasks"]:
+        known = data["tasks"].get(task_id)
+        if known and known.get("status") != "pending":
             continue
         meta = front_matter(spec)
         if not meta.get("role"):
+            continue
+        if known:
+            known.update(prio=int(meta.get("prio", known.get("prio", 5))), deps=split(meta.get("deps")))
             continue
         review = meta.get("review")
         data["tasks"][task_id] = new_task(
