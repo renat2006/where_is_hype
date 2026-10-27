@@ -29,3 +29,7 @@ export {
   VOTER_ID_STORAGE_KEY,
   voteSchema,
 } from './model/shortlist-model';
+export type { VoteCountProps, VoteCountVariant } from './ui/vote-count';
+export { VoteCount } from './ui/vote-count';
+export type { VotersAvatarsProps } from './ui/voters-avatars';
+export { VotersAvatars } from './ui/voters-avatars';

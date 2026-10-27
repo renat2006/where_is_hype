@@ -34,3 +34,7 @@ export {
   visitExpectationSchema,
   visitSchema,
 } from './model/saved-place-model';
+export type { NoteViewProps } from './ui/note-view';
+export { NoteView } from './ui/note-view';
+export type { SourceVideoProps } from './ui/source-video';
+export { SourceVideo } from './ui/source-video';
