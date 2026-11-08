@@ -9,6 +9,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from extractlab.cache import ExtractionCache, resolve_cache_key
+from extractlab.eval import add_eval_arguments, run_eval
 from extractlab.gemini_client import ExtractClientProtocol
 from extractlab.models import ExtractionRunResult
 from extractlab.openrouter_client import (
@@ -16,12 +17,14 @@ from extractlab.openrouter_client import (
     create_extract_client,
     resolve_provider,
 )
+from extractlab.pipeline import add_pipeline_arguments, run_pipeline
+from extractlab.report import add_report_arguments, generate_report_from_run_file
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="extractlab",
-        description="Extract places from short-form videos or links via Gemini.",
+        description="Extract places from short-form videos or links and match with PostGIS.",
     )
     subparsers = parser.add_subparsers(dest="command")
 
@@ -30,6 +33,25 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run place extraction on a video file and/or URL + caption.",
     )
     _add_run_arguments(run_parser)
+
+    pipe_parser = subparsers.add_parser(
+        "pipeline",
+        help="Run end-to-end extraction + PostGIS place matching pipeline.",
+    )
+    add_pipeline_arguments(pipe_parser)
+
+    eval_parser = subparsers.add_parser(
+        "eval",
+        help="Run evaluation dataset and generate runs/<timestamp>.jsonl + Markdown report.",
+    )
+    add_eval_arguments(eval_parser)
+
+    report_parser = subparsers.add_parser(
+        "report",
+        help="Generate Markdown report from an existing runs/<timestamp>.jsonl file.",
+    )
+    add_report_arguments(report_parser)
+
     return parser
 
 
@@ -178,20 +200,9 @@ def run_extraction(
         cache.close()
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    """CLI entrypoint for `extractlab`."""
-    raw_args = list(argv) if argv is not None else sys.argv[1:]
-    if raw_args and raw_args[0] not in {"run", "-h", "--help"}:
-        raw_args = ["run", *raw_args]
-
-    parser = _build_parser()
-    args = parser.parse_args(raw_args)
-
-    if args.command != "run":
-        parser.print_help()
-        return 1
-
-    try:
+def _execute_command(args: argparse.Namespace) -> str:
+    """Execute parsed CLI subcommand and return output text."""
+    if args.command == "run":
         result = run_extraction(
             file_path=args.file_path,
             caption=args.caption,
@@ -204,11 +215,71 @@ def main(argv: Sequence[str] | None = None) -> int:
             duration_sec=args.duration_sec,
             fps=args.fps,
         )
+        return result.model_dump_json(indent=2)
+
+    if args.command == "pipeline":
+        pipe_res = run_pipeline(
+            file_path=args.file_path,
+            caption=args.caption,
+            url=args.url,
+            fake=bool(args.fake),
+            provider=args.provider,
+            model=args.model,
+            cache_db=args.cache_db,
+            no_cache=bool(args.no_cache),
+            dsn=args.dsn,
+            use_in_memory_matcher=bool(args.in_memory_matcher),
+        )
+        return pipe_res.model_dump_json(indent=2)
+
+    if args.command == "eval":
+        summary, _rows = run_eval(
+            dataset_path=args.dataset_path,
+            videos_dir=args.videos_dir,
+            runs_dir=args.runs_dir,
+            reports_dir=args.reports_dir,
+            run_id=args.run_id,
+            fake=bool(args.fake),
+            provider=args.provider,
+            model=args.model,
+            similarity_threshold=args.similarity_threshold,
+            no_cache=bool(args.no_cache),
+            dsn=args.dsn,
+            use_in_memory_matcher=bool(args.in_memory_matcher),
+            write_report=not bool(args.no_report),
+        )
+        return summary.model_dump_json(indent=2)
+
+    out_path = generate_report_from_run_file(
+        args.run_jsonl,
+        args.output,
+        similarity_threshold=args.similarity_threshold,
+        min_per_case_type=args.min_per_case_type,
+    )
+    return str(out_path)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """CLI entrypoint for `extractlab`."""
+    raw_args = list(argv) if argv is not None else sys.argv[1:]
+    known_subcommands = {"run", "pipeline", "eval", "report", "-h", "--help"}
+    if raw_args and raw_args[0] not in known_subcommands:
+        raw_args = ["run", *raw_args]
+
+    parser = _build_parser()
+    args = parser.parse_args(raw_args)
+
+    if args.command not in {"run", "pipeline", "eval", "report"}:
+        parser.print_help()
+        return 1
+
+    try:
+        output = _execute_command(args)
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
-    sys.stdout.write(result.model_dump_json(indent=2) + "\n")
+    sys.stdout.write(output + "\n")
     return 0
 
 
