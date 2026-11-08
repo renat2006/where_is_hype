@@ -11,8 +11,13 @@ import { isPlaceVisited, savedPlaceQueries, SourceVideo } from '@/entities/saved
 import { DeletePlaceButton } from '@/features/delete-place';
 import { EditNote } from '@/features/edit-note';
 import { MarkVisitButton } from '@/features/mark-visit';
-import { ShortlistToggleButton } from '@/features/shortlist-toggle';
+import { ShortlistToggleButton, useShortlistToggle } from '@/features/shortlist-toggle';
 import { track } from '@/shared/lib/analytics';
+import {
+  useTelegramBackButton,
+  useTelegramMainButton,
+  useTelegramSecondaryButton,
+} from '@/shared/telegram';
 import { Button } from '@/shared/ui/button';
 import { EmptyState } from '@/shared/ui/empty-state';
 import { MetroBadge, Sticker } from '@/shared/ui/sticker';
@@ -105,20 +110,47 @@ export function PlacePage({
     });
   };
 
+  const { isNativeBackVisible } = useTelegramBackButton(handleBack, true);
+  const shortlistToggle = useShortlistToggle({ placeId: place?.id ?? resolvedId });
+
+  useTelegramMainButton({
+    text: 'Маршрут',
+    isVisible: Boolean(place),
+    onClick: () => {
+      if (!place) {
+        return;
+      }
+      track('route_clicked', { placeId: place.id, type: place.type });
+      openYandexMapsRoute(place.location, origin);
+    },
+  });
+
+  useTelegramSecondaryButton({
+    text: shortlistToggle.label,
+    isVisible: Boolean(place),
+    isEnabled: !shortlistToggle.disabled,
+    isLoading: shortlistToggle.isPending,
+    onClick: () => {
+      void shortlistToggle.toggle();
+    },
+  });
+
   if (!place || !savedPlace) {
     return (
       <main className="mx-auto flex w-full max-w-[26.875rem] flex-col gap-4 p-4">
         <h1 className="sr-only">Карточка места</h1>
-        <header className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Назад"
-            onClick={handleBack}
-            className="box-border inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center rounded-pill border-[1.5px] border-ink bg-glass text-ink transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
-          >
-            <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
-          </button>
-        </header>
+        {!isNativeBackVisible && (
+          <header className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Назад"
+              onClick={handleBack}
+              className="box-border inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center rounded-pill border-[1.5px] border-ink bg-glass text-ink transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
+            >
+              <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
+            </button>
+          </header>
+        )}
         <EmptyState
           title="Место не найдено"
           description="Возможно, оно было удалено из твоей карты."
@@ -175,14 +207,18 @@ export function PlacePage({
       <h1 className="sr-only">Карточка места</h1>
 
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <button
-          type="button"
-          aria-label="Назад"
-          onClick={handleBack}
-          className="box-border inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center rounded-pill border-[1.5px] border-ink bg-glass text-ink transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
-        >
-          <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
-        </button>
+        {!isNativeBackVisible ? (
+          <button
+            type="button"
+            aria-label="Назад"
+            onClick={handleBack}
+            className="box-border inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center rounded-pill border-[1.5px] border-ink bg-glass text-ink transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
+          >
+            <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
+          </button>
+        ) : (
+          <span />
+        )}
 
         <span
           data-testid="place-distance"

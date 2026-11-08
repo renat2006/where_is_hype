@@ -1,5 +1,6 @@
 import type { Session } from '@/shared/api';
 import { readMockState, SESSION_STORAGE_KEY, sessionSchema } from '@/shared/api';
+import { telegramStorage } from '@/shared/telegram';
 
 export function getStoredSession(): Session | null {
   try {
@@ -19,7 +20,9 @@ export function getStoredSession(): Session | null {
 export function setStoredSession(session: Session): void {
   try {
     const validated = sessionSchema.parse(session);
-    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(validated));
+    const serialized = JSON.stringify(validated);
+    window.localStorage.setItem(SESSION_STORAGE_KEY, serialized);
+    void telegramStorage.setItem(SESSION_STORAGE_KEY, serialized);
   } catch {
     // Ignore storage write errors
   }
@@ -28,6 +31,7 @@ export function setStoredSession(session: Session): void {
 export function clearStoredSession(): void {
   try {
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    void telegramStorage.deleteItem(SESSION_STORAGE_KEY);
   } catch {
     // Ignore storage errors
   }

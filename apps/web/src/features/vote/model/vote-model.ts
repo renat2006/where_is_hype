@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { getVoterId, shortlistQueries, submitShortlistVote } from '@/entities/shortlist';
 import { type MockDbState, readMockState, writeMockState } from '@/shared/api';
 import { track } from '@/shared/lib/analytics';
+import { getTelegramRuntimeState, triggerTelegramHaptic } from '@/shared/telegram';
 
 export const VOTER_NAME_STORAGE_KEY = 'where-is-hype:voter-name';
 export const VOTE_ERROR_MESSAGE = 'Голос не ушёл. Ещё раз?';
@@ -222,7 +223,12 @@ export function useFriendVote({
       return editedNameState.value;
     }
     const fromVote = findVoterVote(shortlist?.votes, resolvedVoterId)?.name;
-    return fromVote ?? getStoredVoterName();
+    const storedName = getStoredVoterName();
+    if (fromVote ?? storedName) {
+      return fromVote ?? storedName;
+    }
+    const tmaFirstName = getTelegramRuntimeState().user?.firstName;
+    return tmaFirstName ?? '';
   }, [editedNameState, resolvedVoterId, shortlist?.votes, token]);
 
   const effectiveVotes = useMemo(() => {
@@ -404,6 +410,7 @@ export function useFriendVote({
       });
 
       const snapshot = applyOptimisticShortlist(nextVotes);
+      triggerTelegramHaptic('vote');
 
       track('friend_voted', {
         token,
@@ -439,6 +446,7 @@ export function useFriendVote({
         onVoted?.(updated, nextPlaceIds);
         return updated;
       } catch {
+        triggerTelegramHaptic('error');
         if (snapshot.prevShared) {
           queryClient.setQueryData(shortlistQueries.byToken(token).queryKey, snapshot.prevShared);
         }

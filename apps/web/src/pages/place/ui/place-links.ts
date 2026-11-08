@@ -1,6 +1,7 @@
 import type { Location, Place, SavedPlace } from '@where-is-hype/core';
 
 import { demoSeedPlacesFixture, placesFixture } from '@/shared/api';
+import { openExternalUrl } from '@/shared/telegram';
 
 export interface YandexMapsRouteLinks {
   schemeUrl: string;
@@ -58,9 +59,7 @@ export function openYandexMapsRoute(
   const openWeb =
     options?.openWeb ??
     ((url: string) => {
-      if (typeof window !== 'undefined' && typeof window.open === 'function') {
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }
+      openExternalUrl(url);
     });
 
   if (options?.preferScheme && options.openScheme) {

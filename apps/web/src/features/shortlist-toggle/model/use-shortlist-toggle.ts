@@ -14,6 +14,7 @@ import {
   updateMyShortlist,
 } from '@/entities/shortlist';
 import { placesFixture } from '@/shared/api';
+import { triggerTelegramHaptic } from '@/shared/telegram';
 
 export const SHORTLIST_ADD_LABEL = 'В «На вечер»';
 export const SHORTLIST_ADDED_LABEL = 'Уже в «На вечер»';
@@ -107,6 +108,7 @@ export function useShortlistState() {
 
       const optimistic = buildOptimisticShortlist(latestShortlist, nextPlaceIds, queryClient);
       queryClient.setQueryData<Shortlist>(mineKey, optimistic);
+      triggerTelegramHaptic('select');
 
       setIsMutating(true);
       try {
@@ -118,6 +120,7 @@ export function useShortlistState() {
           placeIds: updated.places.map((p) => p.id),
         };
       } catch {
+        triggerTelegramHaptic('error');
         if (latestShortlist) {
           queryClient.setQueryData<Shortlist>(mineKey, latestShortlist);
         }
