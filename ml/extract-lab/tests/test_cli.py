@@ -89,3 +89,31 @@ def test_cli_run_fake_works_even_without_precreated_file(
     assert payload["cache_hit"] is False
     assert payload["canonical_key"].startswith("sha256:")
     assert payload["items"][0]["name"] == "Underdog"
+
+
+def test_cli_run_respects_extract_provider_and_extract_model_env(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setenv("EXTRACT_PROVIDER", "fake")
+    monkeypatch.setenv("EXTRACT_MODEL", "google/gemini-3.5-flash-lite")
+
+    cache_db = tmp_path / "env_cache.sqlite3"
+    clip_path = tmp_path / "clip.mp4"
+
+    exit_code = main(
+        [
+            "run",
+            "--file",
+            str(clip_path),
+            "--caption",
+            "Бар «Underdog», ул. Маросейка, 6-8с1, м. Китай-город",
+            "--cache-db",
+            str(cache_db),
+        ]
+    )
+    assert exit_code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["model"] == "google/gemini-3.5-flash-lite"
+    assert payload["items"][0]["name"] == "Underdog"

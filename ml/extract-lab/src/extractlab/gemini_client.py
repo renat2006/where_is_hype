@@ -6,14 +6,17 @@ import json
 import os
 import re
 import struct
+import warnings
 from pathlib import Path
 from typing import Any, Protocol
 
-from google import genai
-from google.genai import types
-from pydantic import BaseModel, ConfigDict
+warnings.filterwarnings("ignore", category=SyntaxWarning, module=r"google\.genai.*")
 
-from extractlab.models import ExtractedPlace, Extraction, TokenUsage
+from google import genai  # noqa: E402
+from google.genai import types  # noqa: E402
+from pydantic import BaseModel, ConfigDict  # noqa: E402
+
+from extractlab.models import ExtractedPlace, Extraction, TokenUsage  # noqa: E402
 
 DEFAULT_MODEL = "gemini-2.5-flash"
 MAX_INLINE_VIDEO_BYTES = 20 * 1024 * 1024  # 20 MB limit for inline video bytes
@@ -207,11 +210,20 @@ class GeminiExtractClient:
                 "or use --fake / FakeExtractClient for offline mode."
             )
 
-        resolved_model = (model or os.environ.get("GEMINI_MODEL") or DEFAULT_MODEL).strip()
+        resolved_model = (
+            model
+            or os.environ.get("GEMINI_MODEL")
+            or os.environ.get("EXTRACT_MODEL")
+            or DEFAULT_MODEL
+        ).strip()
         self.model: str = resolved_model or DEFAULT_MODEL
         self.api_key: str = resolved_key
         self.https_proxy: str | None = (
-            https_proxy or os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy") or None
+            https_proxy
+            or os.environ.get("HTTPS_PROXY")
+            or os.environ.get("https_proxy")
+            or os.environ.get("ALL_PROXY")
+            or None
         )
         self.media_resolution: types.MediaResolution = _resolve_media_resolution(media_resolution)
         self.short_video_max_sec: float = short_video_max_sec
@@ -360,7 +372,12 @@ class FakeExtractClient:
         pricing_path: Path | None = None,
         canned_extraction: Extraction | None = None,
     ) -> None:
-        resolved_model = (model or os.environ.get("GEMINI_MODEL") or DEFAULT_MODEL).strip()
+        resolved_model = (
+            model
+            or os.environ.get("EXTRACT_MODEL")
+            or os.environ.get("GEMINI_MODEL")
+            or DEFAULT_MODEL
+        ).strip()
         self.model: str = resolved_model or DEFAULT_MODEL
         self.pricing_path: Path | None = pricing_path
         self.canned_extraction: Extraction | None = canned_extraction

@@ -9,12 +9,13 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from extractlab.cache import ExtractionCache, resolve_cache_key
-from extractlab.gemini_client import (
-    ExtractClientProtocol,
-    FakeExtractClient,
-    GeminiExtractClient,
-)
+from extractlab.gemini_client import ExtractClientProtocol
 from extractlab.models import ExtractionRunResult
+from extractlab.openrouter_client import (
+    SUPPORTED_PROVIDERS,
+    create_extract_client,
+    resolve_provider,
+)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -58,10 +59,17 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
         help="Use deterministic offline FakeExtractClient without network or API key.",
     )
     parser.add_argument(
+        "--provider",
+        type=str,
+        choices=SUPPORTED_PROVIDERS,
+        default=None,
+        help="Provider: openrouter (default), gemini, or fake (overrides EXTRACT_PROVIDER).",
+    )
+    parser.add_argument(
         "--model",
         type=str,
         default=None,
-        help="Override GEMINI_MODEL (defaults to gemini-2.5-flash).",
+        help="Override EXTRACT_MODEL / GEMINI_MODEL (default: google/gemini-3.5-flash-lite).",
     )
     parser.add_argument(
         "--cache-db",
@@ -94,6 +102,7 @@ def run_extraction(
     caption: str = "",
     url: str | None = None,
     fake: bool = False,
+    provider: str | None = None,
     model: str | None = None,
     cache_db: Path | str | None = None,
     no_cache: bool = False,
@@ -102,24 +111,25 @@ def run_extraction(
     client: ExtractClientProtocol | None = None,
 ) -> ExtractionRunResult:
     """High-level helper executing extraction with SQLite caching."""
+    effective_provider = resolve_provider(provider, fake=fake) if client is None else "custom"
+    is_fake_mode = fake or effective_provider == "fake"
+
     video_bytes: bytes | None = None
     resolved_file = Path(file_path) if file_path is not None else None
 
     if resolved_file is not None:
         if resolved_file.exists():
             video_bytes = resolved_file.read_bytes()
-        elif fake:
+        elif is_fake_mode:
             video_bytes = f"fake-video:{resolved_file.name}:{caption}".encode()
         else:
             raise FileNotFoundError(f"Video file not found: {resolved_file}")
 
-    active_client: ExtractClientProtocol
-    if client is not None:
-        active_client = client
-    elif fake:
-        active_client = FakeExtractClient(model=model)
-    else:
-        active_client = GeminiExtractClient(model=model)
+    active_client: ExtractClientProtocol = (
+        client
+        if client is not None
+        else create_extract_client(provider=effective_provider, model=model, fake=is_fake_mode)
+    )
 
     cache_key = resolve_cache_key(
         url=url,
@@ -187,6 +197,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             caption=args.caption,
             url=args.url,
             fake=bool(args.fake),
+            provider=args.provider,
             model=args.model,
             cache_db=args.cache_db,
             no_cache=bool(args.no_cache),

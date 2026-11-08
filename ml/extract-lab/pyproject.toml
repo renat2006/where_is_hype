@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "google-genai>=1.0",
+    "httpx[socks]>=0.28",
     "pydantic>=2.10",
 ]
 
@@ -43,7 +44,10 @@ plugins = ["pydantic.mypy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q -m 'not live'"
+markers = [
+    "live: live integration test against OpenRouter API (deselected by default; run with -m live)",
+]
 filterwarnings = [
     "error",
     "ignore::SyntaxWarning:google.genai.*",
