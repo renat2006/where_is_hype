@@ -1,0 +1,25 @@
+services:
+  geo-db:
+    image: postgis/postgis:17-3.5
+    container_name: where-is-hype-geo-db
+    environment:
+      POSTGRES_DB: ${GEO_DB_NAME:-where_is_hype_geo}
+      POSTGRES_USER: ${GEO_DB_USER:-where_is_hype}
+      POSTGRES_PASSWORD: ${GEO_DB_PASSWORD:-local-only}
+    ports:
+      - '127.0.0.1:54329:5432'
+    volumes:
+      - geo-db-data:/var/lib/postgresql/data
+      - ./geo/schema.sql:/docker-entrypoint-initdb.d/20-schema.sql:ro
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${GEO_DB_USER:-where_is_hype} -d ${GEO_DB_NAME:-where_is_hype_geo}',
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  geo-db-data:
