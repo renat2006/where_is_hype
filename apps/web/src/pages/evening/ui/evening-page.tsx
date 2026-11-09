@@ -17,6 +17,13 @@ import {
   VotersAvatars,
 } from '@/entities/shortlist';
 import { track } from '@/shared/lib/analytics';
+import {
+  isTelegramMiniApp,
+  shareShortlistViaTelegram,
+  triggerTelegramHaptic,
+  useTelegramBackButton,
+  useTelegramMainButton,
+} from '@/shared/telegram';
 import { Button } from '@/shared/ui/button';
 import { Sticker } from '@/shared/ui/sticker';
 import { showToast, ToastViewport } from '@/shared/ui/toast';
@@ -217,6 +224,19 @@ export function EveningPage({ shortlist: shortlistProp }: EveningPageProps = {})
         token: shared.token,
         placesCount: shared.places.length,
       });
+      triggerTelegramHaptic('success');
+
+      if (isTelegramMiniApp()) {
+        await copyShortlistUrlToClipboard(shareUrl);
+        await shareShortlistViaTelegram({
+          url: shareUrl,
+          title: 'Куда в пятницу? · Где Хайп?',
+          places: shared.places.map((p) => p.name),
+          token: shared.token,
+        });
+        showToast({ message: SHARE_COPIED_TOAST_MESSAGE });
+        return;
+      }
 
       const hasWebShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
@@ -268,21 +288,35 @@ export function EveningPage({ shortlist: shortlistProp }: EveningPageProps = {})
     void navigate('/');
   };
 
+  const { isNativeBackVisible } = useTelegramBackButton(handleBack, true);
+
+  useTelegramMainButton({
+    text: 'Отправить другу',
+    isVisible: canShare,
+    isEnabled: canShare && !isSharing,
+    isLoading: isSharing,
+    onClick: () => {
+      void handleShare();
+    },
+  });
+
   return (
     <main
       data-testid="evening-page"
       className="mx-auto flex min-h-[calc(100dvh-76px)] w-full max-w-[26.875rem] flex-col gap-4 p-4 text-ink"
     >
-      <header className="flex items-center gap-2">
-        <button
-          type="button"
-          aria-label="Назад"
-          onClick={handleBack}
-          className="box-border inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center rounded-pill border-[1.5px] border-ink bg-glass text-ink transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
-        >
-          <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
-        </button>
-      </header>
+      {!isNativeBackVisible && (
+        <header className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Назад"
+            onClick={handleBack}
+            className="box-border inline-flex min-h-[2.75rem] min-w-[2.75rem] shrink-0 cursor-pointer items-center justify-center rounded-pill border-[1.5px] border-ink bg-glass text-ink transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
+          >
+            <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
+          </button>
+        </header>
+      )}
 
       <section aria-label="Заголовок подборки" className="flex flex-col gap-1">
         <h1 className="m-0 font-display text-[1.875rem] leading-[1.05] font-normal text-ink">

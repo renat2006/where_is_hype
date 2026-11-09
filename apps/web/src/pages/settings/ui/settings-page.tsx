@@ -1,7 +1,14 @@
 import clsx from 'clsx';
-import { Link } from 'react-router';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 
 import { type ThemeMode, useTheme } from '@/shared/lib/theme';
+import {
+  isAddToHomeScreenSupported,
+  promptAddToHomeScreen,
+  useTelegramBackButton,
+} from '@/shared/telegram';
+import { Button } from '@/shared/ui/button';
 
 const THEME_OPTIONS: readonly { value: ThemeMode; label: string }[] = [
   { value: 'auto', label: 'Авто · по закату' },
@@ -11,29 +18,37 @@ const THEME_OPTIONS: readonly { value: ThemeMode; label: string }[] = [
 
 export function SettingsPage() {
   const { mode, setMode } = useTheme();
+  const navigate = useNavigate();
+  const [homeScreenPrompted, setHomeScreenPrompted] = useState(false);
+  const { isNativeBackVisible } = useTelegramBackButton(() => {
+    void navigate('/');
+  }, true);
+  const canAddToHomeScreen = isAddToHomeScreenSupported();
 
   return (
     <main className="mx-auto flex w-full max-w-[430px] flex-col gap-6 p-4">
       <header className="flex items-center gap-3">
-        <Link
-          to="/"
-          aria-label="Назад"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-pill border-[1.5px] border-ink bg-surface text-ink no-underline transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        {!isNativeBackVisible && (
+          <Link
+            to="/"
+            aria-label="Назад"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-pill border-[1.5px] border-ink bg-surface text-ink no-underline transition-colors duration-150 ease-out focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink active:bg-line"
           >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </Link>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </Link>
+        )}
         <h1 className="m-0 font-display text-xl font-normal">Настройки</h1>
       </header>
 
@@ -72,6 +87,28 @@ export function SettingsPage() {
           })}
         </div>
       </section>
+
+      {canAddToHomeScreen && (
+        <section className="flex flex-col gap-3 rounded-md border-[1.5px] border-line bg-surface p-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="m-0 text-base font-semibold">Экран «Домой»</h2>
+            <p className="m-0 text-sm text-ink-muted">
+              Добавь ярлык «Где Хайп?» на домашний экран телефона для быстрого доступа к карте.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            disabled={homeScreenPrompted}
+            onClick={() => {
+              if (promptAddToHomeScreen()) {
+                setHomeScreenPrompted(true);
+              }
+            }}
+          >
+            {homeScreenPrompted ? 'Запрос отправлен' : 'Добавить на экран «Домой»'}
+          </Button>
+        </section>
+      )}
     </main>
   );
 }

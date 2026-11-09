@@ -6,10 +6,12 @@ import { createRoot } from 'react-dom/client';
 import { enableMocks } from '@/shared/api';
 import { env } from '@/shared/config';
 import { initTheme } from '@/shared/lib/theme';
+import { initTelegramRuntime } from '@/shared/telegram';
 
 import { App } from './app';
 
 initTheme();
+initTelegramRuntime();
 
 const container = document.getElementById('root');
 

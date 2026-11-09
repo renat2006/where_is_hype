@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { savedPlaceQueries, useSavePlaceMutation } from '@/entities/saved-place';
 import { ApiError } from '@/shared/api';
 import { track } from '@/shared/lib/analytics';
+import { triggerTelegramHaptic } from '@/shared/telegram';
 import { showToast } from '@/shared/ui/toast';
 
 export type SavePlaceSource = 'link' | 'name';
@@ -94,6 +95,8 @@ export function useSavePlaceFlow(options?: UseSavePlaceFlowOptions) {
           ...(normalizedUrl ? { sourceUrl: normalizedUrl } : {}),
         });
 
+        triggerTelegramHaptic('save');
+
         showToast({
           message: toastMessage ?? 'Место сохранено',
           showCountdown: false,
@@ -103,6 +106,7 @@ export function useSavePlaceFlow(options?: UseSavePlaceFlowOptions) {
         return { status: 'saved', savedPlace };
       } catch (error: unknown) {
         if (isAlreadySavedError(error)) {
+          triggerTelegramHaptic('warning');
           const existingPlaceId = error.placeId ?? place.id;
           markAsAlreadySaved(place.id, existingPlaceId);
           await queryClient.invalidateQueries({ queryKey: savedPlaceQueries.all() });
@@ -110,6 +114,7 @@ export function useSavePlaceFlow(options?: UseSavePlaceFlowOptions) {
           return { status: 'already_saved', placeId: existingPlaceId };
         }
 
+        triggerTelegramHaptic('error');
         setSaveError('Не сохранилось. Попробуй ещё раз.');
         throw error;
       } finally {

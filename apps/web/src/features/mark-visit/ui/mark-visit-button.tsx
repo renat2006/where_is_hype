@@ -25,6 +25,7 @@ import {
 } from '@/features/mark-visit/model/mark-visit-model';
 import { readMockState } from '@/shared/api';
 import { track } from '@/shared/lib/analytics';
+import { triggerTelegramHaptic } from '@/shared/telegram';
 import { Button } from '@/shared/ui/button';
 import { showToast } from '@/shared/ui/toast';
 
@@ -225,6 +226,7 @@ export function MarkVisitButton({
       );
 
       syncSavedPlaceToCache(optimistic.updated);
+      triggerTelegramHaptic('visit');
 
       track('visit_marked', {
         placeId: place.id,

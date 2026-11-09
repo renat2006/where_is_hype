@@ -19,6 +19,11 @@ import {
 } from '@/features/offline-status';
 import { env } from '@/shared/config';
 import { track } from '@/shared/lib/analytics';
+import {
+  useTelegramFullscreen,
+  useTelegramMainButton,
+  useTelegramSwipeLock,
+} from '@/shared/telegram';
 import { Button } from '@/shared/ui/button';
 import { Chip } from '@/shared/ui/chip';
 import { Logo } from '@/shared/ui/logo';
@@ -126,6 +131,8 @@ function MyPlacesPageContent({
   });
 
   const seedDemoMutation = useSeedDemoPlacesMutation();
+  const telegramFullscreen = useTelegramFullscreen();
+  useTelegramSwipeLock(true);
 
   useEffect(() => {
     if (hasTrackedOpenRef.current) {
@@ -162,6 +169,14 @@ function MyPlacesPageContent({
 
   const displayedPlaces = isFilterActive ? matchedItems : places;
   const isFilterResultEmpty = hasPlaces && isFilterActive && matchedCount === 0;
+
+  useTelegramMainButton({
+    text: 'Добавить место',
+    isVisible: !isFilterOpen && !showMetroPicker && !isOffline,
+    onClick: () => {
+      void navigate('/add');
+    },
+  });
 
   const navigateToPlace = (placeId: string) => {
     if (isFilterActive) {
@@ -283,6 +298,26 @@ function MyPlacesPageContent({
             >
               <MetroStation variant="origin" name={metroStation.name} />
             </button>
+          )}
+
+          {telegramFullscreen.isSupported && (
+            <div className="pointer-events-auto">
+              <Button
+                variant="map"
+                aria-label={
+                  telegramFullscreen.isFullscreen ? 'Выйти из полного экрана' : 'На весь экран'
+                }
+                data-testid="map-fullscreen-toggle"
+                onClick={() => {
+                  void telegramFullscreen.toggleFullscreen();
+                }}
+                className="h-12 w-12 px-0 py-0"
+              >
+                <span className="font-mono text-xs font-semibold" aria-hidden="true">
+                  {telegramFullscreen.isFullscreen ? '⤡' : '⤢'}
+                </span>
+              </Button>
+            </div>
           )}
 
           <div className="pointer-events-auto">

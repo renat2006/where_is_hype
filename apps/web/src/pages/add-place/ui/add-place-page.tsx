@@ -12,8 +12,11 @@ import {
 } from '@/features/resolve-link';
 import { useSavePlaceFlow } from '@/features/save-place';
 import { SearchPlaceView } from '@/features/search-place';
+import { isTelegramMiniApp, telegramStorage, useTelegramBackButton } from '@/shared/telegram';
 import { Button } from '@/shared/ui/button';
 import { ToastViewport } from '@/shared/ui/toast';
+
+export const ADD_PLACE_DRAFT_STORAGE_KEY = 'where-is-hype:add-place-draft';
 
 export type AddPlaceStep = 'input' | 'loading' | 'candidates' | 'search';
 
@@ -46,6 +49,34 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
   );
   const [unrecognized, setUnrecognized] = useState(false);
   const [initialSearchQuery, setInitialSearchQuery] = useState('');
+
+  useEffect(() => {
+    if (initialUrlParam.length > 0 || !isTelegramMiniApp()) {
+      return;
+    }
+
+    let cancelled = false;
+    void telegramStorage.getItem(ADD_PLACE_DRAFT_STORAGE_KEY).then((draft) => {
+      if (!cancelled && draft && draft.trim().length > 0) {
+        setUrl((prev) => (prev.length === 0 ? draft : prev));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialUrlParam]);
+
+  const handleUrlChange = useCallback((nextUrl: string) => {
+    setUrl(nextUrl);
+    if (isTelegramMiniApp()) {
+      if (nextUrl.trim().length > 0) {
+        void telegramStorage.setItem(ADD_PLACE_DRAFT_STORAGE_KEY, nextUrl);
+      } else {
+        void telegramStorage.deleteItem(ADD_PLACE_DRAFT_STORAGE_KEY);
+      }
+    }
+  }, []);
 
   const { savedPlaceIds, savePlaceWithFeedback, savingPlaceId, saveError, clearSaveError } =
     useSavePlaceFlow();
@@ -116,6 +147,7 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
         sourceUrl: url,
       });
       if (outcome.status === 'saved') {
+        void telegramStorage.deleteItem(ADD_PLACE_DRAFT_STORAGE_KEY);
         void navigate(`/place/${outcome.savedPlace.place.id}`);
       }
     } catch {
@@ -130,6 +162,7 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
         sourceUrl: url,
       });
       if (outcome.status === 'saved') {
+        void telegramStorage.deleteItem(ADD_PLACE_DRAFT_STORAGE_KEY);
         void navigate(`/place/${outcome.savedPlace.place.id}`);
       }
     } catch {
@@ -137,21 +170,49 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
     }
   };
 
+  const handleNativeBack = useCallback(() => {
+    if (step === 'loading') {
+      cancelResolve();
+      setStep('input');
+      return;
+    }
+    if (step === 'candidates') {
+      clearSaveError();
+      setStep('input');
+      return;
+    }
+    if (step === 'search') {
+      clearSaveError();
+      if (!unrecognized && candidates.length > 0) {
+        setStep('candidates');
+      } else {
+        setUnrecognized(false);
+        setStep('input');
+      }
+      return;
+    }
+    void navigate('/');
+  }, [cancelResolve, candidates.length, clearSaveError, navigate, step, unrecognized]);
+
+  const { isNativeBackVisible } = useTelegramBackButton(handleNativeBack, true);
+
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col gap-4 p-4">
       {step === 'input' && (
         <>
           <header className="flex items-center gap-3">
-            <Button
-              variant="map"
-              aria-label="Назад"
-              onClick={() => {
-                void navigate('/');
-              }}
-              className="h-11 min-h-11 w-11 min-w-11 shrink-0 px-0 py-0"
-            >
-              <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
-            </Button>
+            {!isNativeBackVisible && (
+              <Button
+                variant="map"
+                aria-label="Назад"
+                onClick={() => {
+                  void navigate('/');
+                }}
+                className="h-11 min-h-11 w-11 min-w-11 shrink-0 px-0 py-0"
+              >
+                <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
+              </Button>
+            )}
             <h1 className="m-0 font-display text-xl font-normal text-ink">Добавить место</h1>
           </header>
 
@@ -161,7 +222,7 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
 
           <LinkInputForm
             url={url}
-            onUrlChange={setUrl}
+            onUrlChange={handleUrlChange}
             onSubmitUrl={handleSubmitUrl}
             onPasteUrl={trackLinkPastedOnce}
             onSwitchToSearch={handleSwitchToSearch}
