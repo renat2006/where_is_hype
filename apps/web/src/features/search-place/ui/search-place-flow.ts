@@ -13,8 +13,17 @@ import type { TextFieldSuggestion } from '@/shared/ui/text-field';
 import { showToast } from '@/shared/ui/toast';
 
 export function formatPlaceSuggestionSubtitle(place: Place, isSaved = false): string {
-  const base = `${placeTypeLabel[place.type]} · ${place.address} · ${place.metro.name}`;
-  return isSaved ? `${base} · Уже в твоих местах` : base;
+  const parts: string[] = [placeTypeLabel[place.type]];
+  if (place.address.trim()) {
+    parts.push(place.address.trim());
+  }
+  if (place.metro.name.trim()) {
+    parts.push(place.metro.name.trim());
+  }
+  if (isSaved) {
+    parts.push('Уже в твоих местах');
+  }
+  return parts.join(' · ');
 }
 
 export function mapPlaceToSuggestion(

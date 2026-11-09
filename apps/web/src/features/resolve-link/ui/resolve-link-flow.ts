@@ -1,8 +1,7 @@
-import type { Candidate } from '@where-is-hype/core';
 import { detectPlatform } from '@where-is-hype/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { resolvePlaceLink } from '@/entities/place';
+import { type ResolvedCandidate, resolvePlaceLink } from '@/entities/place';
 import { env } from '@/shared/config';
 import { track } from '@/shared/lib/analytics';
 
@@ -61,7 +60,7 @@ export function isDemoLinksEnabled(override?: boolean): boolean {
 
 export interface UseResolveLinkFlowOptions {
   slowThresholdMs?: number | undefined;
-  onResolvedCandidates?: ((candidates: Candidate[], url: string) => void) | undefined;
+  onResolvedCandidates?: ((candidates: ResolvedCandidate[], url: string) => void) | undefined;
   onUnrecognized?: ((url: string) => void) | undefined;
 }
 
@@ -73,7 +72,7 @@ export function useResolveLinkFlow(options?: UseResolveLinkFlowOptions) {
   const [isResolving, setIsResolving] = useState(false);
   const [loadingStep, setLoadingStep] = useState<1 | 2 | 3>(1);
   const [isSlow, setIsSlow] = useState(false);
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<ResolvedCandidate[]>([]);
 
   const abortRef = useRef<AbortController | null>(null);
   const timersRef = useRef<number[]>([]);
@@ -117,7 +116,7 @@ export function useResolveLinkFlow(options?: UseResolveLinkFlowOptions) {
   }, []);
 
   const startResolve = useCallback(
-    async (rawUrl: string): Promise<Candidate[]> => {
+    async (rawUrl: string): Promise<ResolvedCandidate[]> => {
       const trimmed = rawUrl.trim();
       if (!trimmed) {
         return [];

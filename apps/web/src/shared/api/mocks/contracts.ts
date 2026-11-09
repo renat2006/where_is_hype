@@ -1,11 +1,85 @@
+import type { DayHours, Place, SavedPlace, WeeklyHours } from '@where-is-hype/core';
 import {
+  dayHoursSchema,
   locationSchema,
   MAX_NOTE_LENGTH,
+  placeTypeSchema,
   platformSchema,
   SHORTLIST_MAX_PLACES,
   visitExpectationSchema,
+  visitSchema,
 } from '@where-is-hype/core';
 import { z } from 'zod';
+
+const rawDayHoursSchema: z.ZodType<DayHours | null> = z
+  .union([dayHoursSchema, z.array(dayHoursSchema)])
+  .nullish()
+  .transform((val): DayHours | null => {
+    if (!val) {
+      return null;
+    }
+    if (Array.isArray(val)) {
+      return val[0] ?? null;
+    }
+    return val;
+  });
+
+const rawWeeklyHoursSchema: z.ZodType<WeeklyHours | null> = z
+  .object({
+    mon: rawDayHoursSchema,
+    tue: rawDayHoursSchema,
+    wed: rawDayHoursSchema,
+    thu: rawDayHoursSchema,
+    fri: rawDayHoursSchema,
+    sat: rawDayHoursSchema,
+    sun: rawDayHoursSchema,
+  })
+  .nullish()
+  .transform((val): WeeklyHours | null => val ?? null);
+
+const rawMetroSchema = z
+  .object({
+    name: z.string().nullish(),
+    distanceM: z.number().nonnegative().nullish(),
+  })
+  .nullish()
+  .transform((metro) => ({
+    name: metro?.name?.trim() ?? '',
+    distanceM: typeof metro?.distanceM === 'number' ? metro.distanceM : 0,
+  }));
+
+export const apiPlaceSchema: z.ZodType<Place> = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    type: placeTypeSchema,
+    address: z.string().nullish(),
+    metro: rawMetroSchema,
+    location: locationSchema,
+    hours: rawWeeklyHoursSchema,
+    avgCheck: z.number().positive().nullish(),
+    yandexOrgId: z.string().nullish(),
+  })
+  .transform((raw): Place => ({
+    id: raw.id,
+    name: raw.name,
+    type: raw.type,
+    address: raw.address?.trim() ?? '',
+    metro: raw.metro,
+    location: raw.location,
+    hours: raw.hours ?? null,
+    avgCheck: raw.avgCheck ?? null,
+    yandexOrgId: raw.yandexOrgId?.trim() ? raw.yandexOrgId.trim() : null,
+  }));
+
+export const apiSavedPlaceSchema: z.ZodType<SavedPlace> = z.object({
+  place: apiPlaceSchema,
+  sourceUrl: z.string().nullable(),
+  sourcePlatform: platformSchema,
+  note: z.string().max(MAX_NOTE_LENGTH),
+  addedAt: z.string().min(1),
+  visits: z.array(visitSchema),
+});
 
 export const SESSION_STORAGE_KEY = 'where-is-hype:session';
 export const VOTER_ID_STORAGE_KEY = 'where-is-hype:voter-id';
@@ -24,8 +98,32 @@ export const resolveLinkInputSchema = z.object({
 
 export type ResolveLinkInput = z.infer<typeof resolveLinkInputSchema>;
 
+export const matchStatusSchema = z.enum(['exact', 'ambiguous', 'chain_ambiguous', 'not_found']);
+
+export type MatchStatus = z.infer<typeof matchStatusSchema>;
+
+export const resolvedCandidateSchema = z.object({
+  place: apiPlaceSchema.nullable().default(null),
+  confidence: z.number().min(0).max(1).default(0),
+  matchStatus: matchStatusSchema.optional(),
+  status: matchStatusSchema.optional(),
+  rawCategory: z.string().nullish(),
+  category: z.string().nullish(),
+  extractedName: z.string().nullish(),
+  isChain: z.boolean().optional(),
+  addressOrMetro: z.string().nullish(),
+  evidence: z.string().nullish(),
+  evidenceQuote: z.string().nullish(),
+  quote: z.string().nullish(),
+  reason: z.string().nullish(),
+  branchCandidates: z.array(apiPlaceSchema).optional().default([]),
+});
+
+export type ResolvedCandidate = z.infer<typeof resolvedCandidateSchema>;
+
 export const savePlaceInputSchema = z.object({
   placeId: z.string().min(1),
+  place: apiPlaceSchema.optional(),
   sourceUrl: z.string().nullable().optional(),
   sourcePlatform: platformSchema.optional(),
   note: z.string().max(MAX_NOTE_LENGTH).optional(),

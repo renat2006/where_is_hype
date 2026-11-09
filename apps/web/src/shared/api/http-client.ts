@@ -18,6 +18,24 @@ function isZodSchema(value: unknown): value is z.ZodType {
   );
 }
 
+function attachSessionHeader(headers: Headers): void {
+  if (headers.has('X-Session-Id') || typeof window === 'undefined') {
+    return;
+  }
+  try {
+    const raw = window.localStorage.getItem('where-is-hype:session');
+    if (!raw) {
+      return;
+    }
+    const parsed: unknown = JSON.parse(raw);
+    if (isRecord(parsed) && typeof parsed.id === 'string' && parsed.id.trim().length > 0) {
+      headers.set('X-Session-Id', parsed.id.trim());
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+}
+
 export class ApiError extends Error {
   readonly code?: string;
   readonly placeId?: string;
@@ -98,6 +116,7 @@ async function requestWithBody<TSchema extends z.ZodType>(
 
   const headers = new Headers(init?.headers);
   headers.set('Accept', 'application/json');
+  attachSessionHeader(headers);
 
   let serializedBody: BodyInit | undefined = init?.body ?? undefined;
   if (body !== undefined) {
@@ -105,7 +124,7 @@ async function requestWithBody<TSchema extends z.ZodType>(
     serializedBody = JSON.stringify(body);
   }
 
-  const response = await fetch(`${env.apiUrl}${path}`, {
+  const response = await fetch(`${env.apiBaseUrl}${path}`, {
     ...init,
     method,
     headers,
@@ -126,8 +145,9 @@ export async function apiGet<TSchema extends z.ZodType>(
 ): Promise<z.infer<TSchema>> {
   const headers = new Headers(init?.headers);
   headers.set('Accept', 'application/json');
+  attachSessionHeader(headers);
 
-  const response = await fetch(`${env.apiUrl}${path}`, { ...init, method: 'GET', headers });
+  const response = await fetch(`${env.apiBaseUrl}${path}`, { ...init, method: 'GET', headers });
 
   if (!response.ok) {
     throw await parseErrorResponse(response, path);
@@ -215,8 +235,9 @@ export async function apiDelete<TSchema extends z.ZodType>(
 
   const headers = new Headers(init?.headers);
   headers.set('Accept', 'application/json');
+  attachSessionHeader(headers);
 
-  const response = await fetch(`${env.apiUrl}${path}`, {
+  const response = await fetch(`${env.apiBaseUrl}${path}`, {
     ...init,
     method: 'DELETE',
     headers,

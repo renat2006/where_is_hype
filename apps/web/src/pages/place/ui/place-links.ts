@@ -87,7 +87,8 @@ export function buildYandexMapsReviewsUrl(
   if (orgId) {
     return `https://yandex.ru/maps/org/${encodeURIComponent(orgId)}/reviews/`;
   }
-  const query = `${place.name.trim()}, ${place.address.trim()}`;
+  const addressPart = place.address.trim();
+  const query = addressPart ? `${place.name.trim()}, ${addressPart}` : place.name.trim();
   return `https://yandex.ru/maps/?text=${encodeURIComponent(query)}`;
 }
 

@@ -94,4 +94,24 @@ describe('http-client', () => {
     const fallbackError = new ApiError(500, '/broken');
     expect(fallbackError.message).toBe('Request to /broken failed with status 500');
   });
+
+  it('attaches X-Session-Id header from localStorage session when present', async () => {
+    window.localStorage.setItem(
+      'where-is-hype:session',
+      JSON.stringify({ id: 'usr-session-42', createdAt: '2026-10-27T12:00:00.000Z' }),
+    );
+
+    const { network } = await import('virtual:msw');
+    let capturedSessionHeader: string | null = null;
+    network.use(
+      http.get('*/test-session-header', ({ request }) => {
+        capturedSessionHeader = request.headers.get('x-session-id');
+        return HttpResponse.json({ id: '1', value: capturedSessionHeader ?? '' });
+      }),
+    );
+
+    const res = await apiGet('/test-session-header', itemSchema);
+    expect(capturedSessionHeader).toBe('usr-session-42');
+    expect(res.value).toBe('usr-session-42');
+  });
 });

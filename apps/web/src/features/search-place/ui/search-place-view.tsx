@@ -12,6 +12,7 @@ export interface SearchPlaceViewProps {
   sourceUrl?: string | undefined;
   onSourceUrlChange?: ((url: string) => void) | undefined;
   unrecognized?: boolean | undefined;
+  initialQuery?: string | undefined;
   savedPlaceIds: ReadonlySet<string>;
   savingPlaceId?: string | null | undefined;
   saveError?: string | null | undefined;
@@ -24,6 +25,7 @@ export function SearchPlaceView({
   sourceUrl = '',
   onSourceUrlChange,
   unrecognized = false,
+  initialQuery,
   savedPlaceIds,
   savingPlaceId = null,
   saveError = null,
@@ -42,7 +44,7 @@ export function SearchPlaceView({
     isLoading,
     hasReportedCurrentQuery,
     submitMissingReport,
-  } = useSearchPlaceFlow({ savedPlaceIds });
+  } = useSearchPlaceFlow({ initialQuery, savedPlaceIds });
 
   const trimmedSourceUrl = sourceUrl.trim();
   const duplicatePlace =
@@ -91,8 +93,11 @@ export function SearchPlaceView({
           clearable={false}
           error={
             <span className="flex flex-col gap-1">
-              <b className="font-bold text-ink">Не узнали место</b>
-              <span>Ролик закрыт или в нём нет адреса. Напиши название, найдём сами.</span>
+              <b className="font-bold text-ink">Не узнали место · честно не нашли</b>
+              <span>
+                Ролик закрыт или в нём нет адреса. Если ролик закрытый — пришли видео файлом в бот,
+                или напиши название ниже, найдём сами.
+              </span>
             </span>
           }
         />

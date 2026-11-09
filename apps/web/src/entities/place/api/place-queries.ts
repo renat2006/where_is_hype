@@ -1,13 +1,23 @@
 import { queryOptions, useMutation } from '@tanstack/react-query';
-import type { Candidate, Place } from '@where-is-hype/core';
-import { candidateSchema, placeSchema } from '@where-is-hype/core';
+import type { Place } from '@where-is-hype/core';
 import { z } from 'zod';
 
-import type { ReportPlaceInput, ReportPlaceResponse, ResolveLinkInput } from '@/shared/api';
-import { apiGet, apiPost, reportPlaceResponseSchema } from '@/shared/api';
+import type {
+  ReportPlaceInput,
+  ReportPlaceResponse,
+  ResolvedCandidate,
+  ResolveLinkInput,
+} from '@/shared/api';
+import {
+  apiGet,
+  apiPlaceSchema,
+  apiPost,
+  reportPlaceResponseSchema,
+  resolvedCandidateSchema,
+} from '@/shared/api';
 
-const placeListSchema = z.array(placeSchema);
-const candidateListSchema = z.array(candidateSchema);
+const placeListSchema = z.array(apiPlaceSchema);
+const candidateListSchema = z.array(resolvedCandidateSchema);
 
 export async function fetchPlaces(init?: RequestInit): Promise<Place[]> {
   return apiGet('/places', placeListSchema, init);
@@ -24,7 +34,7 @@ export async function searchPlaces(query: string, init?: RequestInit): Promise<P
 export async function resolvePlaceLink(
   input: ResolveLinkInput | string,
   init?: RequestInit,
-): Promise<Candidate[]> {
+): Promise<ResolvedCandidate[]> {
   const url = typeof input === 'string' ? input : input.url;
   return apiPost('/links/resolve', candidateListSchema, { url }, init);
 }

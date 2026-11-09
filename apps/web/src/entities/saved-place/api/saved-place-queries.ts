@@ -1,6 +1,5 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { SavedPlace } from '@where-is-hype/core';
-import { savedPlaceSchema } from '@where-is-hype/core';
 import { z } from 'zod';
 
 import type {
@@ -9,16 +8,33 @@ import type {
   UpdateNoteInput,
   UpdateVisitExpectationInput,
 } from '@/shared/api';
-import { apiDelete, apiGet, apiPatch, apiPost } from '@/shared/api';
+import { apiDelete, ApiError, apiGet, apiPatch, apiPost, apiSavedPlaceSchema } from '@/shared/api';
 
-const savedPlaceListSchema = z.array(savedPlaceSchema);
+const savedPlaceListSchema = z.array(apiSavedPlaceSchema);
 
 export async function getSavedPlaces(init?: RequestInit): Promise<SavedPlace[]> {
   return apiGet('/me/places', savedPlaceListSchema, init);
 }
 
 export async function savePlace(input: SavePlaceInput, init?: RequestInit): Promise<SavedPlace> {
-  return apiPost('/me/places', savedPlaceSchema, input, init);
+  try {
+    return await apiPost('/me/places', apiSavedPlaceSchema, input, init);
+  } catch (error: unknown) {
+    if (error instanceof ApiError && error.status === 404 && input.place !== undefined) {
+      return apiPost(
+        '/me/places',
+        apiSavedPlaceSchema,
+        {
+          place: input.place,
+          sourceUrl: input.sourceUrl,
+          sourcePlatform: input.sourcePlatform,
+          note: input.note,
+        },
+        init,
+      );
+    }
+    throw error;
+  }
 }
 
 export async function updateSavedPlaceNote(
@@ -27,7 +43,7 @@ export async function updateSavedPlaceNote(
 ): Promise<SavedPlace> {
   return apiPatch(
     `/me/places/${encodeURIComponent(input.placeId)}`,
-    savedPlaceSchema,
+    apiSavedPlaceSchema,
     { note: input.note },
     init,
   );
@@ -44,7 +60,7 @@ export async function markPlaceVisit(
   const { placeId, ...payload } = input;
   return apiPost(
     `/me/places/${encodeURIComponent(placeId)}/visits`,
-    savedPlaceSchema,
+    apiSavedPlaceSchema,
     payload,
     init,
   );
@@ -57,7 +73,7 @@ export async function updateVisitExpectation(
   const { placeId, ...payload } = input;
   return apiPatch(
     `/me/places/${encodeURIComponent(placeId)}/visits`,
-    savedPlaceSchema,
+    apiSavedPlaceSchema,
     payload,
     init,
   );
@@ -89,7 +105,14 @@ export function useSavePlaceMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: SavePlaceInput) => savePlace(input),
-    onSuccess: async () => {
+    onSuccess: async (savedPlace) => {
+      queryClient.setQueryData<SavedPlace[]>(savedPlaceQueries.list().queryKey, (prev) => {
+        if (!prev) {
+          return [savedPlace];
+        }
+        const filtered = prev.filter((item) => item.place.id !== savedPlace.place.id);
+        return [savedPlace, ...filtered];
+      });
       await queryClient.invalidateQueries({ queryKey: savedPlaceQueries.all() });
     },
   });

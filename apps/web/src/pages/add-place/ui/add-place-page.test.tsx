@@ -136,6 +136,8 @@ describe('AddPlacePage (US1 & US2)', () => {
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent('Не узнали место');
     });
+    expect(screen.getByRole('alert')).toHaveTextContent(/не нашли/i);
+    expect(screen.getByRole('alert')).toHaveTextContent(/пришли видео файлом/i);
 
     // The unrecognized URL is preserved in the link input
     expect(screen.getByLabelText('Ссылка на ролик')).toHaveValue(DEMO_UNKNOWN_LINK);
@@ -186,5 +188,34 @@ describe('AddPlacePage (US1 & US2)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Найти по названию' }));
     expect(screen.getByLabelText('Название места')).toBeInTheDocument();
+  });
+
+  it('resolves chain without address (Surf Coffee), allows choosing branch or nearest, and saves on "Да, сохранить"', async () => {
+    const user = userEvent.setup();
+    renderAddPlaceRoute('/add?url=https%3A%2F%2Fwww.instagram.com%2Freel%2Fsurf-coffee-clip%2F');
+
+    await waitFor(() => {
+      expect(screen.getByText('Surf Coffee')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId('candidate-confidence')).toHaveTextContent(
+      'Сеть без адреса · выберите филиал',
+    );
+    expect(screen.getByTestId('candidate-evidence')).toHaveTextContent('Источник: кадры');
+
+    // Select Pokrovka branch and confirm with "Да, сохранить"
+    await user.click(screen.getByRole('button', { name: /Surf Coffee × Pokrovka/ }));
+    await user.click(screen.getByRole('button', { name: 'Да, сохранить' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('place-route')).toHaveTextContent(
+        'Карточка места: surf-coffee-pokrovka',
+      );
+    });
+
+    const db = readMockState();
+    expect(db.savedPlaces).toHaveLength(1);
+    expect(db.savedPlaces[0]?.place.id).toBe('surf-coffee-pokrovka');
+    expect(db.savedPlaces[0]?.sourceUrl).toBe('https://www.instagram.com/reel/surf-coffee-clip/');
   });
 });

@@ -41,7 +41,7 @@ describe('place-queries', () => {
       wrapper,
     });
     const candidates = await resolveMutation.current.mutateAsync(DEMO_RECOGNIZED_LINK);
-    expect(candidates[0]?.place.id).toBe('zhuk-i-pchela');
+    expect(candidates[0]?.place?.id).toBe('zhuk-i-pchela');
 
     const { result: reportMutation } = renderHook(() => useReportPlaceMutation(), {
       wrapper,

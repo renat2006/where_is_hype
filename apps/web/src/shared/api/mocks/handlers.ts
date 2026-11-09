@@ -6,8 +6,6 @@ import {
   getMoscowDayAndMinutes,
   locationSchema,
   MAX_NOTE_LENGTH,
-  placeSchema,
-  savedPlaceSchema,
   SHORTLIST_MAX_PLACES,
   shortlistSchema,
   upsertVote,
@@ -22,6 +20,8 @@ import { env } from '@/shared/config';
 
 import {
   analyticsEventInputSchema,
+  apiPlaceSchema,
+  apiSavedPlaceSchema,
   MOCK_DB_STORAGE_KEY,
   reportPlaceResponseSchema,
   SESSION_STORAGE_KEY,
@@ -43,7 +43,7 @@ export const GARDEN_RING_RADIUS_M = 3200;
 
 const mockDbSchema = z.object({
   session: sessionSchema.nullable().default(null),
-  savedPlaces: z.array(savedPlaceSchema).default([]),
+  savedPlaces: z.array(apiSavedPlaceSchema).default([]),
   shortlist: shortlistSchema.nullable().default(null),
   sharedShortlists: z.record(z.string(), shortlistSchema).default({}),
   reports: z.array(reportPlaceResponseSchema).default([]),
@@ -268,7 +268,63 @@ function findPlaceById(id: string): Place | undefined {
   return placesFixture.find((place) => place.id === id);
 }
 
-export function resolveLinkCandidates(rawUrl: string): Candidate[] {
+export interface MockResolvedCandidate extends Omit<Candidate, 'place'> {
+  place: Place | null;
+  matchStatus?: 'exact' | 'ambiguous' | 'chain_ambiguous' | 'not_found';
+  status?: 'exact' | 'ambiguous' | 'chain_ambiguous' | 'not_found';
+  rawCategory?: string;
+  category?: string;
+  extractedName?: string;
+  isChain?: boolean;
+  addressOrMetro?: string | null;
+  evidence?: string;
+  evidenceQuote?: string;
+  reason?: string;
+  branchCandidates?: Place[];
+}
+
+const SURF_COFFEE_BRANCHES: Place[] = [
+  {
+    id: 'surf-coffee-pokrovka',
+    name: 'Surf Coffee × Pokrovka',
+    type: 'coffee',
+    address: 'ул. Покровка, 17',
+    metro: { name: 'Чистые пруды', distanceM: 420 },
+    location: { lat: 55.7595, lng: 37.6462 },
+    hours: {
+      mon: { open: '08:00', close: '23:00' },
+      tue: { open: '08:00', close: '23:00' },
+      wed: { open: '08:00', close: '23:00' },
+      thu: { open: '08:00', close: '23:00' },
+      fri: { open: '08:00', close: '23:00' },
+      sat: { open: '09:00', close: '23:00' },
+      sun: { open: '09:00', close: '23:00' },
+    },
+    avgCheck: 450,
+    yandexOrgId: null,
+  },
+  {
+    id: 'surf-coffee-solyanka',
+    name: 'Surf Coffee × Solyanka',
+    type: 'coffee',
+    address: 'ул. Солянка, 1/2с1',
+    metro: { name: 'Китай-город', distanceM: 230 },
+    location: { lat: 55.7538, lng: 37.6378 },
+    hours: {
+      mon: { open: '08:00', close: '22:00' },
+      tue: { open: '08:00', close: '22:00' },
+      wed: { open: '08:00', close: '22:00' },
+      thu: { open: '08:00', close: '22:00' },
+      fri: { open: '08:00', close: '23:00' },
+      sat: { open: '09:00', close: '23:00' },
+      sun: { open: '09:00', close: '22:00' },
+    },
+    avgCheck: 450,
+    yandexOrgId: null,
+  },
+];
+
+export function resolveLinkCandidates(rawUrl: string): MockResolvedCandidate[] {
   const parsed = parseLinkWithPath(rawUrl);
   if (!parsed) {
     return [];
@@ -287,14 +343,94 @@ export function resolveLinkCandidates(rawUrl: string): Candidate[] {
     return [];
   }
 
+  if (
+    normalized.includes('surf-coffee') ||
+    normalized.includes('chain-no-address') ||
+    normalized.includes('chain-ambiguous')
+  ) {
+    return [
+      {
+        place: null,
+        confidence: 0.4,
+        matchStatus: 'chain_ambiguous',
+        status: 'chain_ambiguous',
+        rawCategory: 'coffee',
+        category: 'coffee',
+        extractedName: 'Surf Coffee',
+        isChain: true,
+        addressOrMetro: null,
+        evidence: 'frame',
+        evidenceQuote: 'Стаканчик с логотипом Surf Coffee в кадре',
+        reason: 'chain_without_address',
+        branchCandidates: SURF_COFFEE_BRANCHES,
+      },
+    ];
+  }
+
+  if (normalized.includes('not-in-db') || normalized.includes('atlantis')) {
+    return [
+      {
+        place: null,
+        confidence: 0.2,
+        matchStatus: 'not_found',
+        status: 'not_found',
+        rawCategory: 'restaurant',
+        category: 'restaurant',
+        extractedName: 'Кафе Атлантида',
+        isChain: false,
+        addressOrMetro: null,
+        evidence: 'speech',
+        evidenceQuote: 'мы зашли в секретное Кафе Атлантида',
+        reason: 'no_candidates_above_threshold',
+        branchCandidates: [],
+      },
+    ];
+  }
+
   if (normalized === normalizedDemoRecognized || normalized.includes('hype-coffee')) {
     const first = findPlaceById('zhuk-i-pchela');
     const second = findPlaceById('pokrovka-coffee');
     const third = findPlaceById('zerno');
     return [
-      ...(first ? [{ place: first, confidence: 0.95 }] : []),
-      ...(second ? [{ place: second, confidence: 0.72 }] : []),
-      ...(third ? [{ place: third, confidence: 0.48 }] : []),
+      ...(first
+        ? [
+            {
+              place: first,
+              confidence: 0.95,
+              matchStatus: 'exact' as const,
+              status: 'exact' as const,
+              extractedName: first.name,
+              evidence: 'caption',
+              evidenceQuote: 'Забежали в Жук и Пчела на Маросейке 6/8 за рафом с халвой',
+            },
+          ]
+        : []),
+      ...(second
+        ? [
+            {
+              place: second,
+              confidence: 0.72,
+              matchStatus: 'ambiguous' as const,
+              status: 'ambiguous' as const,
+              extractedName: second.name,
+              evidence: 'on_screen_text',
+              evidenceQuote: 'Утро на Покровке 17 · фильтр и кардамон',
+            },
+          ]
+        : []),
+      ...(third
+        ? [
+            {
+              place: third,
+              confidence: 0.48,
+              matchStatus: 'ambiguous' as const,
+              status: 'ambiguous' as const,
+              extractedName: third.name,
+              evidence: 'speech',
+              evidenceQuote: 'в районе Китай-города классная обжарка в Зерне',
+            },
+          ]
+        : []),
     ];
   }
 
@@ -303,9 +439,45 @@ export function resolveLinkCandidates(rawUrl: string): Candidate[] {
     const second = findPlaceById('sosny-pekarnya');
     const third = findPlaceById('zhuk-i-pchela');
     return [
-      ...(first ? [{ place: first, confidence: 0.94 }] : []),
-      ...(second ? [{ place: second, confidence: 0.68 }] : []),
-      ...(third ? [{ place: third, confidence: 0.41 }] : []),
+      ...(first
+        ? [
+            {
+              place: first,
+              confidence: 0.94,
+              matchStatus: 'exact' as const,
+              status: 'exact' as const,
+              extractedName: first.name,
+              evidence: 'speech',
+              evidenceQuote: 'сегодня ужинаем в ресторане Сосны на Малой Бронной',
+            },
+          ]
+        : []),
+      ...(second
+        ? [
+            {
+              place: second,
+              confidence: 0.68,
+              matchStatus: 'ambiguous' as const,
+              status: 'ambiguous' as const,
+              extractedName: second.name,
+              evidence: 'on_screen_text',
+              evidenceQuote: 'Сосны пекарня · Большая Никитская',
+            },
+          ]
+        : []),
+      ...(third
+        ? [
+            {
+              place: third,
+              confidence: 0.41,
+              matchStatus: 'ambiguous' as const,
+              status: 'ambiguous' as const,
+              extractedName: third.name,
+              evidence: 'frame',
+              evidenceQuote: 'Вывеска кофейни на Маросейке',
+            },
+          ]
+        : []),
     ];
   }
 
@@ -334,9 +506,15 @@ export function resolveLinkCandidates(rawUrl: string): Candidate[] {
   }
 
   const confidences = [0.91, 0.64, 0.39] as const;
+  const evidences = ['caption', 'on_screen_text', 'speech'] as const;
   return selected.slice(0, 3).map((place, index) => ({
     place,
     confidence: confidences[index] ?? 0.35,
+    matchStatus: index === 0 ? ('exact' as const) : ('ambiguous' as const),
+    status: index === 0 ? ('exact' as const) : ('ambiguous' as const),
+    extractedName: place.name,
+    evidence: evidences[index] ?? 'caption',
+    evidenceQuote: `${place.name}${place.address ? `, ${place.address}` : ''}`,
   }));
 }
 
@@ -445,9 +623,12 @@ export const handlers = [
 
     let targetPlace: Place | undefined;
     if (typeof body.placeId === 'string') {
-      targetPlace = findPlaceById(body.placeId);
-    } else if (isRecord(body.place)) {
-      const parsedPlace = placeSchema.safeParse(body.place);
+      targetPlace =
+        findPlaceById(body.placeId) ??
+        SURF_COFFEE_BRANCHES.find((branch) => branch.id === body.placeId);
+    }
+    if (!targetPlace && isRecord(body.place)) {
+      const parsedPlace = apiPlaceSchema.safeParse(body.place);
       if (parsedPlace.success) {
         targetPlace = findPlaceById(parsedPlace.data.id) ?? parsedPlace.data;
       }

@@ -24,4 +24,24 @@ describe('PlaceCard', () => {
     expect(screen.getByText(place.address)).toBeInTheDocument();
     expect(screen.getByText('Кофейня')).toBeInTheDocument();
   });
+
+  it('omits address, metro, and hours when absent and renders source video link when provided', () => {
+    const minimalPlace: Place = {
+      ...place,
+      address: '',
+      metro: { name: '', distanceM: 0 },
+      hours: null,
+    };
+
+    render(<PlaceCard place={minimalPlace} sourceUrl="https://www.instagram.com/reel/CxYz123/" />);
+
+    expect(screen.getByRole('heading', { name: minimalPlace.name })).toBeInTheDocument();
+    expect(screen.queryByText(/ул\. Покровка/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/м\./)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Часы не уточнены/)).not.toBeInTheDocument();
+    expect(screen.getByTestId('place-card-source-link')).toHaveAttribute(
+      'href',
+      'https://www.instagram.com/reel/CxYz123/',
+    );
+  });
 });

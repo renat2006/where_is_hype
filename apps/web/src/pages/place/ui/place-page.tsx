@@ -231,14 +231,18 @@ export function PlacePage({
         aria-label="Адрес и часы работы"
         className="flex flex-col gap-2 rounded-md border-[1.5px] border-line bg-surface px-3.5 py-3 text-[0.9375rem] leading-[1.375rem] text-ink"
       >
-        <span data-testid="place-address" className="wrap-break-word">
-          {place.address}
-        </span>
+        {place.address.trim().length > 0 && (
+          <span data-testid="place-address" className="wrap-break-word">
+            {place.address}
+          </span>
+        )}
 
-        <div data-testid="place-metro" className="flex flex-wrap items-center gap-2">
-          <MetroBadge variant="badge" name={place.metro.name} />
-          <span className="wrap-break-word">{place.metro.name}</span>
-        </div>
+        {place.metro.name.trim().length > 0 && (
+          <div data-testid="place-metro" className="flex flex-wrap items-center gap-2">
+            <MetroBadge variant="badge" name={place.metro.name} />
+            <span className="wrap-break-word">{place.metro.name}</span>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           <HoursStatus

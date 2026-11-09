@@ -45,6 +45,7 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
     initialUrlParam.length > 0 ? 'loading' : 'input',
   );
   const [unrecognized, setUnrecognized] = useState(false);
+  const [initialSearchQuery, setInitialSearchQuery] = useState('');
 
   const { savedPlaceIds, savePlaceWithFeedback, savingPlaceId, saveError, clearSaveError } =
     useSavePlaceFlow();
@@ -96,10 +97,11 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
     setStep('input');
   };
 
-  const handleSwitchToSearch = () => {
+  const handleSwitchToSearch = (prefillQuery?: string) => {
     cancelResolve();
     clearSaveError();
     setUnrecognized(false);
+    setInitialSearchQuery(typeof prefillQuery === 'string' ? prefillQuery : '');
     setStep('search');
   };
 
@@ -201,6 +203,7 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
           sourceUrl={url}
           onSourceUrlChange={setUrl}
           unrecognized={unrecognized}
+          initialQuery={initialSearchQuery}
           savedPlaceIds={savedPlaceIds}
           savingPlaceId={savingPlaceId}
           saveError={saveError}
@@ -210,6 +213,7 @@ function AddPlacePageContent({ showDemoLinks, slowThresholdMs }: AddPlacePagePro
           onOpenPlace={handleOpenPlace}
           onBack={() => {
             clearSaveError();
+            setInitialSearchQuery('');
             if (!unrecognized && candidates.length > 0) {
               setStep('candidates');
             } else {

@@ -83,6 +83,7 @@ export function useSavePlaceFlow(options?: UseSavePlaceFlowOptions) {
       try {
         const savedPlace = await saveMutation.mutateAsync({
           placeId: place.id,
+          place,
           sourceUrl: normalizedUrl,
         });
 
