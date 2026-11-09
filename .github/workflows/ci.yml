@@ -46,7 +46,7 @@ jobs:
       - run: pnpm --filter @where-is-hype/web build
         env:
           VITE_API_MOCKS: 'true'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: web-dist
           path: apps/web/dist
