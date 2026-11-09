@@ -3,7 +3,15 @@ import path from 'node:path';
 
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
 
-const SHOTS_DIR = path.resolve(import.meta.dirname, '../../../../../reports/P16-shots');
+function resolveShotsDir(): string {
+  const worktreeFarmRoot = path.resolve(import.meta.dirname, '../../../../..');
+  if (path.basename(worktreeFarmRoot) === '.farm') {
+    return path.resolve(worktreeFarmRoot, 'reports/K4-P1-shots');
+  }
+  return path.resolve(import.meta.dirname, '../../../.farm/reports/K4-P1-shots');
+}
+
+const SHOTS_DIR = resolveShotsDir();
 const MOCK_DB_STORAGE_KEY = 'where-is-hype:mock-db:v1';
 const SESSION_STORAGE_KEY = 'where-is-hype:session';
 const THEME_STORAGE_KEY = 'where-is-hype:theme';
