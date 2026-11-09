@@ -56,6 +56,18 @@ describe('candidateSchema', () => {
     expect(candidateSchema.parse(candidate)).toEqual(candidate);
   });
 
+  it('accepts chain_ambiguous candidate with extractedName and branchCandidates', () => {
+    const chainCandidate = {
+      place: null,
+      confidence: 0.85,
+      matchStatus: 'chain_ambiguous' as const,
+      extractedName: 'Surf Coffee',
+      isChain: true,
+      branchCandidates: [samplePlace],
+    };
+    expect(candidateSchema.parse(chainCandidate)).toEqual(chainCandidate);
+  });
+
   it('rejects confidence outside [0, 1]', () => {
     expect(candidateSchema.safeParse({ place: samplePlace, confidence: 1.2 }).success).toBe(false);
     expect(candidateSchema.safeParse({ place: samplePlace, confidence: -0.1 }).success).toBe(false);

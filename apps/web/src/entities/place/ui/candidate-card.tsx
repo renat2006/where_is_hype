@@ -339,8 +339,8 @@ export function CandidateCard({
           </div>
         )}
 
-        <p className="m-0 text-xs leading-4 text-ink-muted">
-          В ролике не указан точный адрес сети. Выберите ближайший филиал или конкретную точку:
+        <p data-testid="chain-ambiguous-banner" className="m-0 text-xs leading-4 text-ink-muted">
+          Сеть заведений — в ролике не указан точный адрес. Выберите ближайший филиал или конкретную точку:
         </p>
 
         {branches.length > 0 && (

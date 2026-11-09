@@ -19,13 +19,22 @@ export const platformLabel: Record<z.infer<typeof platformSchema>, string> = {
   other: 'Ссылка',
 };
 
+export const matchStatuses = ['exact', 'chain_ambiguous', 'ambiguous', 'not_found'] as const;
+
+export const matchStatusSchema = z.enum(matchStatuses);
+
 export const candidateSchema = z.object({
-  place: placeSchema,
+  place: placeSchema.nullable(),
   confidence: z.number().min(0).max(1),
+  matchStatus: matchStatusSchema.optional(),
+  extractedName: z.string().optional(),
+  isChain: z.boolean().optional(),
+  branchCandidates: z.array(placeSchema).optional(),
 });
 
 export type Platform = z.infer<typeof platformSchema>;
 export type SourcePlatform = Platform;
+export type CandidateMatchStatus = z.infer<typeof matchStatusSchema>;
 export type Candidate = z.infer<typeof candidateSchema>;
 
 function matchesDomain(host: string, domain: string): boolean {

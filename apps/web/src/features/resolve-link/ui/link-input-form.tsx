@@ -1,4 +1,4 @@
-import type { ClipboardEvent, ReactNode, SyntheticEvent } from 'react';
+import type { ChangeEvent, ClipboardEvent, ReactNode, SyntheticEvent } from 'react';
 import { useState } from 'react';
 
 import { demoLinks } from '@/shared/api';
@@ -40,6 +40,21 @@ export function LinkInputForm({
     }
     setValidationHint(null);
     onSubmitUrl(trimmed);
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setValidationHint('Файл больше 20 МБ — выбери короткий ролик до 20 МБ');
+      return;
+    }
+    setValidationHint(null);
+    const fileUrl = `file://${file.name}`;
+    onUrlChange(fileUrl);
+    onSubmitUrl(fileUrl);
   };
 
   const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
@@ -101,9 +116,22 @@ export function LinkInputForm({
         Вставить ссылку
       </Button>
 
-      <Button variant="text" disabled={loading} onClick={onSwitchToSearch} className="self-center">
-        Найти по названию
-      </Button>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <label className="inline-flex min-h-11 cursor-pointer items-center justify-center px-3 py-1.5 font-ui text-sm font-semibold text-link underline underline-offset-4 hover:text-ink">
+          <span>Загрузить видео (.mp4 до 20 МБ)</span>
+          <input
+            type="file"
+            accept="video/mp4,video/quicktime,video/webm"
+            data-testid="add-video-file-input"
+            disabled={loading}
+            onChange={handleFileChange}
+            className="sr-only"
+          />
+        </label>
+        <Button variant="text" disabled={loading} onClick={onSwitchToSearch} className="self-center">
+          Найти по названию
+        </Button>
+      </div>
     </form>
   );
 }

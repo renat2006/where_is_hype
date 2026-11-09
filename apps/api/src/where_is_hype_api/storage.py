@@ -248,7 +248,22 @@ class SqliteStorage:
                 "SELECT data_json FROM saved_places WHERE bucket_key = ? ORDER BY sort_order ASC",
                 (bucket_key,),
             ).fetchall()
-            return [SavedPlace.model_validate_json(str(r["data_json"])) for r in rows]
+            own = [SavedPlace.model_validate_json(str(r["data_json"])) for r in rows]
+            if bucket_key == "bot_global":
+                return own
+            bot_rows = conn.execute(
+                "SELECT data_json FROM saved_places WHERE bucket_key = 'bot_global' ORDER BY sort_order ASC"
+            ).fetchall()
+            if not bot_rows:
+                return own
+            seen_ids = {item.place.id for item in own}
+            bot_items = [
+                SavedPlace.model_validate_json(str(r["data_json"]))
+                for r in bot_rows
+            ]
+            # Места из Telegram-бота идут первыми в списке и на карте пользователя
+            merged = [b for b in bot_items if b.place.id not in seen_ids] + own
+            return merged
 
     def find_duplicate_saved_place(
         self,
@@ -312,7 +327,7 @@ class SqliteStorage:
 
     def update_saved_place(self, bucket_key: str, saved_place: SavedPlace) -> None:
         with self._connect() as conn:
-            conn.execute(
+            cur = conn.execute(
                 """
                 UPDATE saved_places
                 SET data_json = ?
@@ -320,6 +335,15 @@ class SqliteStorage:
                 """,
                 (saved_place.model_dump_json(), bucket_key, saved_place.place.id),
             )
+            if cur.rowcount == 0:
+                conn.execute(
+                    """
+                    UPDATE saved_places
+                    SET data_json = ?
+                    WHERE bucket_key = 'bot_global' AND place_id = ?
+                    """,
+                    (saved_place.model_dump_json(), saved_place.place.id),
+                )
             conn.commit()
 
     def delete_saved_place(self, bucket_key: str, place_id: str) -> SavedPlace | None:
@@ -328,12 +352,19 @@ class SqliteStorage:
                 "SELECT data_json FROM saved_places WHERE bucket_key = ? AND place_id = ?",
                 (bucket_key, place_id),
             ).fetchone()
+            target_bucket = bucket_key
+            if not row and bucket_key != "bot_global":
+                row = conn.execute(
+                    "SELECT data_json FROM saved_places WHERE bucket_key = 'bot_global' AND place_id = ?",
+                    (place_id,),
+                ).fetchone()
+                target_bucket = "bot_global"
             if not row:
                 return None
             existing = SavedPlace.model_validate_json(str(row["data_json"]))
             conn.execute(
                 "DELETE FROM saved_places WHERE bucket_key = ? AND place_id = ?",
-                (bucket_key, place_id),
+                (target_bucket, place_id),
             )
 
             shortlist_row = conn.execute(

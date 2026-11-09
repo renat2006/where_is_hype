@@ -324,6 +324,34 @@ export function FriendVotePage({
                           >
                             ролик
                           </a>
+
+                          <span aria-hidden="true">·</span>
+
+                          <a
+                            href={
+                              place.yandexOrgId
+                                ? `https://yandex.ru/maps/org/${encodeURIComponent(place.yandexOrgId)}/`
+                                : `https://yandex.ru/maps/?text=${encodeURIComponent(`${place.name} ${place.address}`.trim())}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            data-testid="friend-place-ymaps"
+                            className="inline-flex min-h-6 items-center font-ui text-[0.8125rem] leading-[1.125rem] font-semibold text-link underline underline-offset-2 hover:text-ink"
+                          >
+                            Яндекс Карты ↗
+                          </a>
+
+                          <span aria-hidden="true">·</span>
+
+                          <a
+                            href={`https://2gis.ru/moscow/search/${encodeURIComponent(`${place.name} ${place.address}`.trim())}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            data-testid="friend-place-2gis"
+                            className="inline-flex min-h-6 items-center font-ui text-[0.8125rem] leading-[1.125rem] font-semibold text-link underline underline-offset-2 hover:text-ink"
+                          >
+                            2ГИС ↗
+                          </a>
                         </span>
                       </div>
                     </div>

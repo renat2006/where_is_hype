@@ -6,4 +6,9 @@ export {
   DEMO_UNRECOGNIZED_LINK,
   demoLinks,
 } from './demo-links';
-export { DEMO_SEED_PLACE_IDS, demoSeedPlacesFixture, placesFixture } from './places';
+export {
+  cityHypeShowcasePlaces,
+  DEMO_SEED_PLACE_IDS,
+  demoSeedPlacesFixture,
+  placesFixture,
+} from './places';

@@ -574,3 +574,31 @@ export const demoSeedPlacesFixture: SavedPlace[] = [
     visits: [],
   },
 ];
+
+export const cityHypeShowcasePlaces: Place[] = [
+  {
+    id: 'gmii-pushkina',
+    name: 'ГМИИ им. А. С. Пушкина',
+    type: 'cafe',
+    address: 'ул. Волхонка, 12',
+    metro: { name: 'Кропоткинская', distanceM: 280 },
+    location: { lat: 55.7473, lng: 37.6052 },
+    hours: dailyHours('11:00', '20:00'),
+    avgCheck: null,
+    yandexOrgId: '1019092701',
+  },
+  {
+    id: 'tretyakovskaya-galereya',
+    name: 'Третьяковская галерея',
+    type: 'cafe',
+    address: 'Лаврушинский пер., 10',
+    metro: { name: 'Третьяковская', distanceM: 410 },
+    location: { lat: 55.7414, lng: 37.6208 },
+    hours: dailyHours('10:00', '21:00'),
+    avgCheck: null,
+    yandexOrgId: '1023322798',
+  },
+  getPlaceByIdOrThrow('zhuk-i-pchela'),
+  getPlaceByIdOrThrow('sosny'),
+  getPlaceByIdOrThrow('zhuravli'),
+];

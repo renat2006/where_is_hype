@@ -38,6 +38,7 @@ export {
 } from './mocks/contracts';
 export { enableMocks } from './mocks/enable-mocks';
 export {
+  cityHypeShowcasePlaces,
   DEMO_COFFEE_LINK,
   DEMO_LINKS,
   DEMO_RECOGNIZED_LINK,

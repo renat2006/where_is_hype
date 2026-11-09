@@ -52,6 +52,16 @@ def _get_settings(request: Request) -> Settings:
 
 
 def _extract_session_id(request: Request) -> str | None:
+    tg_uid = request.headers.get("x-telegram-user-id")
+    if tg_uid and tg_uid.strip():
+        clean_uid = tg_uid.strip()
+        return clean_uid if clean_uid.startswith("usr-tg-") else f"usr-tg-{clean_uid}"
+
+    q_uid = request.query_params.get("uid")
+    if q_uid and q_uid.strip():
+        clean_q = q_uid.strip()
+        return clean_q if clean_q.startswith("usr-") else f"usr-tg-{clean_q}"
+
     for header_name in ("x-session-id", "x-anonymous-id"):
         val = request.headers.get(header_name)
         if val and val.strip():
@@ -113,7 +123,53 @@ async def post_me(request: Request) -> JSONResponse:
 async def search_places_route(request: Request, q: str = "") -> JSONResponse:
     storage = _get_storage(request)
     places = storage.list_places()
-    results = search_places(places, q)
+    results = list(search_places(places, q))
+    if len(q.strip()) >= 2 and len(results) < 10:
+        try:
+            from where_is_hype_api import tsv_geo  # type: ignore[attr-defined]
+            from where_is_hype_api.domain import (
+                map_category_to_place_type,
+                parse_osm_opening_hours,
+            )
+            from where_is_hype_api.schemas import PlaceMetro
+
+            gm = tsv_geo.match(q.strip())
+            candidates = []
+            if gm.get("status") == "exact":
+                candidates.append(gm)
+            elif gm.get("status") in ("chain_ambiguous", "ambiguous"):
+                candidates.extend(gm.get("options") or [])
+            seen_ids = {p.id for p in results}
+            for o in candidates:
+                pid = f"osm-{o['osm_id']}"
+                if pid in seen_ids:
+                    continue
+                pt_o, rc_o = map_category_to_place_type(
+                    str(o.get("category", "cafe")),
+                    str(o.get("name", q)),
+                )
+                mn_o = str(o.get("metro") or "Охотный Ряд")
+                mm_o = max(0, int(o.get("metro_m") or 300))
+                ad_o = str(o.get("address") or "").strip() or f"Москва, м. {mn_o}"
+                bp = Place(
+                    id=pid,
+                    name=str(o.get("name") or q),
+                    type=pt_o,
+                    address=ad_o,
+                    metro=PlaceMetro(name=mn_o, distanceM=mm_o),
+                    location=Location(lat=float(o["lat"]), lng=float(o["lon"])),
+                    hours=parse_osm_opening_hours(o.get("opening_hours")),
+                    avgCheck=None,
+                    yandexOrgId=None,
+                    rawCategory=rc_o or str(o.get("category") or "cafe"),
+                )
+                storage.upsert_place(bp, in_catalog=True)
+                results.append(bp)
+                seen_ids.add(pid)
+                if len(results) >= 10:
+                    break
+        except Exception:
+            pass
     return JSONResponse(content=[p.model_dump() for p in results], status_code=200)
 
 
@@ -610,3 +666,96 @@ async def create_event_route(request: Request) -> JSONResponse:
         storage.create_event(bucket, raw_event.strip(), anon_id, timestamp, props)
 
     return JSONResponse(content={"ok": True}, status_code=201)
+
+
+def _key_to_source_url(key: str) -> str | None:
+    if key.startswith("ig:"):
+        return f"https://www.instagram.com/reel/{key[3:]}/"
+    if key.startswith("yt:"):
+        return f"https://www.youtube.com/shorts/{key[3:]}"
+    if key.startswith("tt:"):
+        return f"https://www.tiktok.com/video/{key[3:]}"
+    if key.startswith("vk:"):
+        return f"https://vk.com/clip{key[3:]}"
+    return None
+
+
+@router.post("/bot/sync")
+async def bot_sync_route(request: Request) -> JSONResponse:
+    """Синхронизирует места, найденные в Telegram-боте @where_is_hype_bot, напрямую в каталог и Мои места мини-аппа."""
+    from where_is_hype_api import tsv_geo  # type: ignore[attr-defined]
+    from where_is_hype_api.domain import (
+        map_category_to_place_type,
+        parse_osm_opening_hours,
+    )
+    from where_is_hype_api.schemas import PlaceMetro
+
+    storage = _get_storage(request)
+    body = await _read_json_body(request)
+    chat_id_raw = body.get("chat_id")
+    user_bucket = f"usr-tg-{chat_id_raw}" if chat_id_raw is not None and str(chat_id_raw).strip() else None
+    if user_bucket:
+        storage.get_or_create_session(user_bucket)
+    key = str(body.get("key") or "").strip()
+    source_url = (
+        str(body.get("source_url")).strip()
+        if isinstance(body.get("source_url"), str) and body.get("source_url")
+        else _key_to_source_url(key)
+    )
+    raw_places = body.get("places") if isinstance(body.get("places"), list) else []
+    synced_ids: list[str] = []
+
+    for p in reversed(raw_places):
+        if not isinstance(p, dict):
+            continue
+        name = str(p.get("name") or "").strip()
+        if not name:
+            continue
+        m = p.get("match") if isinstance(p.get("match"), dict) else {}
+        if m.get("status") != "exact":
+            m = tsv_geo.match(name, p.get("address_or_metro"))
+        if m.get("status") != "exact" or m.get("lat") is None or m.get("lon") is None:
+            continue
+
+        pid = f"osm-{m.get('osm_id') or abs(hash(name)) % 10000000}"
+        pt, rc = map_category_to_place_type(
+            str(m.get("category") or p.get("category") or "cafe"),
+            name,
+        )
+        metro_name = str(m.get("metro") or "Охотный Ряд")
+        metro_m = max(0, int(m.get("metro_m") or 300))
+        addr = (
+            str(m.get("address") or "").strip()
+            or str(p.get("address_or_metro") or "").strip()
+            or f"Москва, м. {metro_name}"
+        )
+        place = Place(
+            id=pid,
+            name=name,
+            type=pt,
+            address=addr,
+            metro=PlaceMetro(name=metro_name, distanceM=metro_m),
+            location=Location(lat=float(m["lat"]), lng=float(m["lon"])),
+            hours=parse_osm_opening_hours(m.get("opening_hours")),
+            avgCheck=None,
+            yandexOrgId=None,
+            rawCategory=rc or str(p.get("category") or "cafe"),
+        )
+        storage.upsert_place(place, in_catalog=True)
+
+        quote_raw = str(p.get("evidence_quote") or "").strip()
+        note = quote_raw[:MAX_NOTE_LENGTH] if len(quote_raw) >= 12 else "Добавлено через @where_is_hype_bot"
+        saved_place = SavedPlace(
+            place=place,
+            sourceUrl=source_url,
+            sourcePlatform=detect_platform(source_url) if source_url else "other",
+            note=note,
+            addedAt=now_iso(),
+            visits=[],
+        )
+        if user_bucket:
+            storage.insert_saved_place(user_bucket, saved_place, prepend=True)
+        storage.insert_saved_place("bot_global", saved_place, prepend=True)
+        synced_ids.append(pid)
+
+    return JSONResponse(content={"ok": True, "userBucket": user_bucket, "synced": synced_ids}, status_code=200)

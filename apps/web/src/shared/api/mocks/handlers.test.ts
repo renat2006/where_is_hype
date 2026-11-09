@@ -75,10 +75,10 @@ describe('MSW handlers with localStorage persistence', () => {
     });
     expect(recognized.length).toBeGreaterThanOrEqual(2);
     expect(recognized.length).toBeLessThanOrEqual(3);
-    expect(recognized[0]?.place.type).toBe('coffee');
-    expect(recognized[0]?.place.id).toBe('zhuk-i-pchela');
-    expect(recognized[0]?.place.address).toBeTruthy();
-    expect(recognized[0]?.place.metro.name).toBeTruthy();
+    expect(recognized[0]?.place?.type).toBe('coffee');
+    expect(recognized[0]?.place?.id).toBe('zhuk-i-pchela');
+    expect(recognized[0]?.place?.address).toBeTruthy();
+    expect(recognized[0]?.place?.metro.name).toBeTruthy();
 
     const unknown = await apiPost('/links/resolve', z.array(candidateSchema), {
       url: DEMO_UNKNOWN_LINK,

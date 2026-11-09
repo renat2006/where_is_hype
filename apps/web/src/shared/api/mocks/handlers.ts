@@ -29,6 +29,7 @@ import {
   VOTER_ID_STORAGE_KEY,
 } from './contracts';
 import {
+  cityHypeShowcasePlaces,
   DEMO_RECOGNIZED_LINK,
   DEMO_UNKNOWN_LINK,
   demoSeedPlacesFixture,
@@ -229,7 +230,26 @@ function parseLinkWithPath(rawUrl: string): URL | null {
   }
 }
 
+function extractVideoFileName(rawUrl: string): string | null {
+  const trimmed = rawUrl.trim();
+  if (!trimmed || /\s/.test(trimmed)) {
+    return null;
+  }
+  if (/^file:\/\//i.test(trimmed)) {
+    const filePart = trimmed.replace(/^file:\/\//i, '').replace(/^\/+/, '');
+    return filePart || null;
+  }
+  if (!/^https?:\/\//i.test(trimmed) && /\.(mp4|mov|webm|m4v)(?:[?#].*)?$/i.test(trimmed)) {
+    return trimmed.replace(/^\/+/, '');
+  }
+  return null;
+}
+
 function normalizeLinkForCompare(rawUrl: string): string {
+  const videoFile = extractVideoFileName(rawUrl);
+  if (videoFile) {
+    return `file://${videoFile.toLowerCase()}`;
+  }
   const parsed = parseLinkWithPath(rawUrl);
   if (!parsed) {
     return rawUrl.trim().toLowerCase();
@@ -247,6 +267,10 @@ function ensureValidUrlOrNull(rawUrl: string | null | undefined): string | null 
   if (!trimmed) {
     return null;
   }
+  const videoFile = extractVideoFileName(trimmed);
+  if (videoFile) {
+    return `file://${videoFile}`;
+  }
   const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   try {
     return new URL(withProtocol).toString();
@@ -262,10 +286,6 @@ function hashString(input: string): number {
     hash = Math.imul(hash, 16777619);
   }
   return Math.abs(hash);
-}
-
-function findPlaceById(id: string): Place | undefined {
-  return placesFixture.find((place) => place.id === id);
 }
 
 export interface MockResolvedCandidate extends Omit<Candidate, 'place'> {
@@ -324,7 +344,147 @@ const SURF_COFFEE_BRANCHES: Place[] = [
   },
 ];
 
+const PIMS_BRANCHES: Place[] = [
+  {
+    id: 'pims-pokrovka',
+    name: 'Pims × Покровка',
+    type: 'coffee',
+    address: 'ул. Покровка, 4',
+    metro: { name: 'Китай-город', distanceM: 490 },
+    location: { lat: 55.7579, lng: 37.6401 },
+    hours: {
+      mon: { open: '10:00', close: '23:00' },
+      tue: { open: '10:00', close: '23:00' },
+      wed: { open: '10:00', close: '23:00' },
+      thu: { open: '10:00', close: '23:00' },
+      fri: { open: '10:00', close: '23:00' },
+      sat: { open: '10:00', close: '23:00' },
+      sun: { open: '10:00', close: '23:00' },
+    },
+    avgCheck: 600,
+    yandexOrgId: null,
+  },
+  {
+    id: 'pims-bronny',
+    name: 'Pims × Малая Бронная',
+    type: 'coffee',
+    address: 'ул. Малая Бронная, 16',
+    metro: { name: 'Тверская', distanceM: 620 },
+    location: { lat: 55.7627, lng: 37.5946 },
+    hours: {
+      mon: { open: '10:00', close: '23:00' },
+      tue: { open: '10:00', close: '23:00' },
+      wed: { open: '10:00', close: '23:00' },
+      thu: { open: '10:00', close: '23:00' },
+      fri: { open: '10:00', close: '23:00' },
+      sat: { open: '10:00', close: '23:00' },
+      sun: { open: '10:00', close: '23:00' },
+    },
+    avgCheck: 600,
+    yandexOrgId: null,
+  },
+];
+
+const PUSHKIN_BRANCHES: Place[] = [
+  {
+    id: 'pushkin-bulvar',
+    name: 'Кафе Пушкинъ',
+    type: 'cafe',
+    address: 'Тверской бульвар, 26А',
+    metro: { name: 'Тверская', distanceM: 220 },
+    location: { lat: 55.7637, lng: 37.605 },
+    hours: {
+      mon: { open: '00:00', close: '00:00' },
+      tue: { open: '00:00', close: '00:00' },
+      wed: { open: '00:00', close: '00:00' },
+      thu: { open: '00:00', close: '00:00' },
+      fri: { open: '00:00', close: '00:00' },
+      sat: { open: '00:00', close: '00:00' },
+      sun: { open: '00:00', close: '00:00' },
+    },
+    avgCheck: 3500,
+    yandexOrgId: null,
+  },
+  {
+    id: 'pushkin-konditerskaya',
+    name: 'Кондитерская «Кафе Пушкинъ»',
+    type: 'cafe',
+    address: 'Тверской бульвар, 26/5',
+    metro: { name: 'Тверская', distanceM: 240 },
+    location: { lat: 55.7634, lng: 37.6047 },
+    hours: {
+      mon: { open: '10:00', close: '22:00' },
+      tue: { open: '10:00', close: '22:00' },
+      wed: { open: '10:00', close: '22:00' },
+      thu: { open: '10:00', close: '22:00' },
+      fri: { open: '10:00', close: '22:00' },
+      sat: { open: '10:00', close: '22:00' },
+      sun: { open: '10:00', close: '22:00' },
+    },
+    avgCheck: 2500,
+    yandexOrgId: null,
+  },
+];
+
+function findPlaceById(id: string): Place | undefined {
+  return (
+    placesFixture.find((place) => place.id === id) ??
+    cityHypeShowcasePlaces.find((place) => place.id === id) ??
+    SURF_COFFEE_BRANCHES.find((branch) => branch.id === id) ??
+    PIMS_BRANCHES.find((branch) => branch.id === id) ??
+    PUSHKIN_BRANCHES.find((branch) => branch.id === id)
+  );
+}
+
 export function resolveLinkCandidates(rawUrl: string): MockResolvedCandidate[] {
+  const videoFile = extractVideoFileName(rawUrl);
+  if (videoFile) {
+    const first = findPlaceById('zhuk-i-pchela');
+    const second = findPlaceById('sosny');
+    const third = findPlaceById('pokrovka-coffee');
+    return [
+      ...(first
+        ? [
+            {
+              place: first,
+              confidence: 0.93,
+              matchStatus: 'exact' as const,
+              status: 'exact' as const,
+              extractedName: first.name,
+              evidence: 'frame',
+              evidenceQuote: `Распознано из видеофайла ${videoFile}: ${first.name}`,
+            },
+          ]
+        : []),
+      ...(second
+        ? [
+            {
+              place: second,
+              confidence: 0.69,
+              matchStatus: 'ambiguous' as const,
+              status: 'ambiguous' as const,
+              extractedName: second.name,
+              evidence: 'speech',
+              evidenceQuote: `${second.name}, ${second.address}`,
+            },
+          ]
+        : []),
+      ...(third
+        ? [
+            {
+              place: third,
+              confidence: 0.44,
+              matchStatus: 'ambiguous' as const,
+              status: 'ambiguous' as const,
+              extractedName: third.name,
+              evidence: 'on_screen_text',
+              evidenceQuote: `${third.name} · ${third.address}`,
+            },
+          ]
+        : []),
+    ];
+  }
+
   const parsed = parseLinkWithPath(rawUrl);
   if (!parsed) {
     return [];
@@ -341,6 +501,46 @@ export function resolveLinkCandidates(rawUrl: string): MockResolvedCandidate[] {
     normalized.includes('/unknown')
   ) {
     return [];
+  }
+
+  if (normalized.includes('pushkin-no-address')) {
+    return [
+      {
+        place: null,
+        confidence: 0.45,
+        matchStatus: 'chain_ambiguous',
+        status: 'chain_ambiguous',
+        rawCategory: 'cafe',
+        category: 'cafe',
+        extractedName: 'Кафе Пушкинъ',
+        isChain: true,
+        addressOrMetro: null,
+        evidence: 'caption',
+        evidenceQuote: 'Кафе Пушкинъ на Тверском бульваре',
+        reason: 'chain_without_address',
+        branchCandidates: PUSHKIN_BRANCHES,
+      },
+    ];
+  }
+
+  if (normalized.includes('pims')) {
+    return [
+      {
+        place: null,
+        confidence: 0.42,
+        matchStatus: 'chain_ambiguous',
+        status: 'chain_ambiguous',
+        rawCategory: 'coffee',
+        category: 'coffee',
+        extractedName: 'Pims',
+        isChain: true,
+        addressOrMetro: null,
+        evidence: 'frame',
+        evidenceQuote: 'Стаканчик Pims в кадре без адреса',
+        reason: 'chain_without_address',
+        branchCandidates: PIMS_BRANCHES,
+      },
+    ];
   }
 
   if (
@@ -365,6 +565,62 @@ export function resolveLinkCandidates(rawUrl: string): MockResolvedCandidate[] {
         branchCandidates: SURF_COFFEE_BRANCHES,
       },
     ];
+  }
+
+  if (
+    normalized.includes('top-5') ||
+    normalized.includes('top5') ||
+    normalized.includes('compilation') ||
+    normalized.includes('podborka') ||
+    normalized.includes('multi')
+  ) {
+    const compilationIds = [
+      'zhuravli',
+      'pokrovka-bar',
+      'pyatnitsa',
+      'sidr-i-tancy',
+      'vermut-bar',
+    ] as const;
+    const confidences = [0.95, 0.92, 0.89, 0.87, 0.85] as const;
+    return compilationIds.flatMap((id, idx) => {
+      const place = findPlaceById(id);
+      if (!place) {
+        return [];
+      }
+      return [
+        {
+          place,
+          confidence: confidences[idx] ?? 0.85,
+          matchStatus: 'exact' as const,
+          status: 'exact' as const,
+          extractedName: place.name,
+          evidence: 'on_screen_text',
+          evidenceQuote: `Топ-5 мест: ${place.name} (${place.address})`,
+        },
+      ];
+    });
+  }
+
+  if (normalized.includes('top-3') || normalized.includes('top3')) {
+    const top3Ids = ['zhuk-i-pchela', 'zhuravli', 'sosny'] as const;
+    const confidences = [0.94, 0.89, 0.85] as const;
+    return top3Ids.flatMap((id, idx) => {
+      const place = findPlaceById(id);
+      if (!place) {
+        return [];
+      }
+      return [
+        {
+          place,
+          confidence: confidences[idx] ?? 0.85,
+          matchStatus: 'exact' as const,
+          status: 'exact' as const,
+          extractedName: place.name,
+          evidence: 'on_screen_text',
+          evidenceQuote: `Подборка: ${place.name} (${place.address})`,
+        },
+      ];
+    });
   }
 
   if (normalized.includes('not-in-db') || normalized.includes('atlantis')) {

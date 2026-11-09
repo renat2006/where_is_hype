@@ -197,3 +197,9 @@ export function resolveSavedPlaceForCard(
 
   return null;
 }
+
+export function build2GisSearchUrl(place: Pick<Place, 'name' | 'address'>): string {
+  const addressPart = place.address.trim();
+  const query = addressPart ? `${place.name.trim()} ${addressPart}` : place.name.trim();
+  return `https://2gis.ru/moscow/search/${encodeURIComponent(query)}`;
+}

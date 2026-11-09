@@ -5,7 +5,7 @@ import { type ResolvedCandidate, resolvePlaceLink } from '@/entities/place';
 import { env } from '@/shared/config';
 import { track } from '@/shared/lib/analytics';
 
-export const MAX_CANDIDATES = 3;
+export const MAX_CANDIDATES = 10;
 export const SLOW_RESOLVE_THRESHOLD_MS = 5_000;
 export const STEP_2_DELAY_MS = 400;
 export const STEP_3_DELAY_MS = 900;

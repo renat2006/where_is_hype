@@ -16,6 +16,7 @@ import {
   VoteCount,
   VotersAvatars,
 } from '@/entities/shortlist';
+import { cityHypeShowcasePlaces } from '@/shared/api';
 import { track } from '@/shared/lib/analytics';
 import {
   isTelegramMiniApp,
@@ -459,6 +460,32 @@ export function EveningPage({ shortlist: shortlistProp }: EveningPageProps = {})
           <span className="font-mono text-xs">{SHORTLIST_MAX_PLACES}</span> мест».
         </p>
       )}
+
+      <section
+        aria-label="Хайповые находки из рилсов Москвы"
+        data-testid="city-hype-showcase"
+        className="flex flex-col gap-2 rounded-md border-[1.5px] border-line bg-surface p-3"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <b className="font-ui text-sm font-semibold text-ink">
+            Хайповые находки из рилсов Москвы
+          </b>
+          <span className="font-mono text-xs text-ink-muted">Топ недели</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {cityHypeShowcasePlaces.slice(0, 5).map((item) => (
+            <Link
+              key={item.id}
+              to={`/place/${item.id}`}
+              data-testid={`city-hype-item-${item.id}`}
+              className="inline-flex items-center gap-1 rounded-pill border border-ink bg-bg px-2.5 py-1 font-ui text-xs font-medium text-ink no-underline hover:bg-line/40"
+            >
+              <span>{item.name}</span>
+              <span className="text-ink-muted">· м. {item.metro.name}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <div className="mt-auto flex flex-col gap-2 pt-2">
         <Button

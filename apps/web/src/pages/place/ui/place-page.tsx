@@ -23,6 +23,7 @@ import { EmptyState } from '@/shared/ui/empty-state';
 import { MetroBadge, Sticker } from '@/shared/ui/sticker';
 
 import {
+  build2GisSearchUrl,
   buildYandexMapsReviewsUrl,
   buildYandexMapsRouteLinks,
   getPlaceViewTransitionName,
@@ -167,6 +168,7 @@ export function PlacePage({
   const isCompactTitle = isLongPlaceTitle(place.name);
   const routeLinks = buildYandexMapsRouteLinks(place.location, origin);
   const reviewsUrl = buildYandexMapsReviewsUrl(place);
+  const twoGisUrl = build2GisSearchUrl(place);
   const resolvedVisitSlot =
     hereSlot !== undefined ? (
       hereSlot
@@ -321,15 +323,26 @@ export function PlacePage({
           {resolvedEveningSlot}
         </div>
 
-        <a
-          href={reviewsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-testid="place-reviews-link"
-          className="inline-flex min-h-[2.75rem] items-center justify-center self-center px-[0.75rem] py-[0.375rem] text-center font-ui text-[0.9375rem] leading-[1.25rem] font-semibold text-link underline underline-offset-4 transition-colors duration-150 ease-out hover:text-ink focus-visible:rounded-pill focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink"
-        >
-          Отзывы в Яндекс Картах ↗
-        </a>
+        <div className="flex flex-wrap items-center justify-center gap-3 self-center">
+          <a
+            href={reviewsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="place-reviews-link"
+            className="inline-flex min-h-[2.75rem] items-center justify-center px-[0.75rem] py-[0.375rem] text-center font-ui text-[0.9375rem] leading-[1.25rem] font-semibold text-link underline underline-offset-4 transition-colors duration-150 ease-out hover:text-ink focus-visible:rounded-pill focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink"
+          >
+            Отзывы в Яндекс Картах ↗
+          </a>
+          <a
+            href={twoGisUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="place-2gis-link"
+            className="inline-flex min-h-[2.75rem] items-center justify-center px-[0.75rem] py-[0.375rem] text-center font-ui text-[0.9375rem] leading-[1.25rem] font-semibold text-link underline underline-offset-4 transition-colors duration-150 ease-out hover:text-ink focus-visible:rounded-pill focus-visible:outline-[2.5px] focus-visible:outline-offset-[3px] focus-visible:outline-ink"
+          >
+            2ГИС ↗
+          </a>
+        </div>
 
         <DeletePlaceButton
           placeId={place.id}
