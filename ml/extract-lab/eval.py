@@ -1,0 +1,66 @@
+"""Top-level script wrapper for `extractlab.eval`."""
+
+from __future__ import annotations
+
+from extractlab.eval import (
+    CANONICAL_CASE_TYPES,
+    DEFAULT_DATASET_PATH,
+    DEFAULT_REPORTS_DIR,
+    DEFAULT_RUNS_DIR,
+    DEFAULT_SIMILARITY_THRESHOLD,
+    DatasetRecord,
+    EvalFailure,
+    EvalRecordEvaluation,
+    EvalRunRow,
+    EvalSummary,
+    FailureReason,
+    GoldPlace,
+    SliceMetrics,
+    aggregate_slice_metrics,
+    build_summary_from_rows,
+    build_unverified_warnings,
+    compute_percentile,
+    evaluate_record,
+    expected_gold_status,
+    fuzzy_address_or_metro_match,
+    fuzzy_name_similarity,
+    get_prompt_version,
+    load_dataset,
+    load_run_rows,
+    main,
+    resolve_video_path,
+    run_eval,
+)
+
+__all__ = [
+    "CANONICAL_CASE_TYPES",
+    "DEFAULT_DATASET_PATH",
+    "DEFAULT_REPORTS_DIR",
+    "DEFAULT_RUNS_DIR",
+    "DEFAULT_SIMILARITY_THRESHOLD",
+    "DatasetRecord",
+    "EvalFailure",
+    "EvalRecordEvaluation",
+    "EvalRunRow",
+    "EvalSummary",
+    "FailureReason",
+    "GoldPlace",
+    "SliceMetrics",
+    "aggregate_slice_metrics",
+    "build_summary_from_rows",
+    "build_unverified_warnings",
+    "compute_percentile",
+    "evaluate_record",
+    "expected_gold_status",
+    "fuzzy_address_or_metro_match",
+    "fuzzy_name_similarity",
+    "get_prompt_version",
+    "load_dataset",
+    "load_run_rows",
+    "main",
+    "resolve_video_path",
+    "run_eval",
+]
+
+if __name__ == "__main__":
+    raise SystemExit(main())

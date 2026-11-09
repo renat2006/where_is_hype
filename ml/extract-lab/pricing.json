@@ -1,0 +1,57 @@
+{
+  "updated_at": "2026-11-09",
+  "status": "проверить",
+  "note": "Запасная таблица тарифов (для OpenRouter основная стоимость берётся напрямую из usage.cost ответа API; значения ниже используются как резервный расчёт и для локального режима)",
+  "default_model": "gemini-2.5-flash",
+  "models": {
+    "google/gemini-3.5-flash-lite": {
+      "input_per_1m_usd": 0.3,
+      "output_per_1m_usd": 1.2,
+      "cached_input_per_1m_usd": 0.075,
+      "updated_at": "2026-11-09",
+      "note": "Запасной тариф OpenRouter (основной — usage.cost из ответа OpenRouter)"
+    },
+    "google/gemini-3.6-flash": {
+      "input_per_1m_usd": 0.75,
+      "output_per_1m_usd": 3.0,
+      "cached_input_per_1m_usd": 0.1875,
+      "updated_at": "2026-11-09",
+      "note": "Запасной тариф OpenRouter (основной — usage.cost из ответа OpenRouter)"
+    },
+    "google/gemini-3.8-flash": {
+      "input_per_1m_usd": 0.825,
+      "output_per_1m_usd": 3.3,
+      "cached_input_per_1m_usd": 0.2,
+      "updated_at": "2026-11-09",
+      "note": "Запасной тариф OpenRouter (основной — usage.cost из ответа OpenRouter)"
+    },
+    "gemini-2.5-flash": {
+      "input_per_1m_usd": 0.3,
+      "output_per_1m_usd": 2.5,
+      "cached_input_per_1m_usd": 0.075,
+      "updated_at": "2026-11-08",
+      "note": "Заглушка — проверить актуальный тариф (включая видео, аудио и thinking-токены)"
+    },
+    "gemini-2.5-flash-lite": {
+      "input_per_1m_usd": 0.1,
+      "output_per_1m_usd": 0.4,
+      "cached_input_per_1m_usd": 0.025,
+      "updated_at": "2026-11-08",
+      "note": "Заглушка — проверить актуальный тариф"
+    },
+    "gemini-2.0-flash": {
+      "input_per_1m_usd": 0.1,
+      "output_per_1m_usd": 0.4,
+      "cached_input_per_1m_usd": 0.025,
+      "updated_at": "2026-11-08",
+      "note": "Заглушка — проверить актуальный тариф"
+    },
+    "gemini-2.5-pro": {
+      "input_per_1m_usd": 1.25,
+      "output_per_1m_usd": 10.0,
+      "cached_input_per_1m_usd": 0.3125,
+      "updated_at": "2026-11-08",
+      "note": "Заглушка — проверить актуальный тариф"
+    }
+  }
+}
